@@ -2901,7 +2901,7 @@ confirm. All except **protocol versions** need Cloud Lookup credentials.
 | **Check protocol versions** | The device is connected and answering on a different version than the settings say. Waits for the device to answer first, so it cannot save a version a device was merely stuck on |
 | **Check measurement scaling** | Readings that are 10× or 100× off, using the divisor Tuya declares rather than leaving you to work it out from the number |
 | **Update pickers on existing devices** | Mode and fan-speed lists that were seeded from whatever the device happened to report at pairing time, and numeric ranges with their decimal place and step. Never touches DP numbers — and reads every list from the DP your device is set to, so a mapping you corrected by hand gets that DP's list, not the one its code name would suggest. A DP set to `0` gets none |
-| **Find data points your device does not have** | Driver defaults written for one device family pointing at nothing on another. A DP is only reported when the specification does not list it **and** your device has never once reported it |
+| **Find data points your device does not have** | Driver defaults written for one device family pointing at nothing on another. A DP is only reported when the specification does not list it **and** your device has never once reported it. Range limits such as `dp_light_dim_max` are numbers but not data points, and are left alone |
 
 ### Help
 

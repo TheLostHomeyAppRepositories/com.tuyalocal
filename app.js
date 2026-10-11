@@ -4,6 +4,8 @@ const Homey  = require('homey');
 const crypto = require('crypto');
 const https  = require('https');
 
+const { isNotADpNumber } = require('./lib/dpCodeMap');
+
 const LOG_MAX = 500;
 // Wie viele *verschiedene* Meldungen der Bericht auflistet. Nach dem Zusammenfassen
 // gleicher Zeilen sind das sehr viel weniger als LOG_MAX, und der Deckel sorgt dafuer,
@@ -74,6 +76,20 @@ class TuyaLocalApp extends Homey.App {
     try {
       const stored = this.homey.settings.get('diagnostic_logs');
       if (Array.isArray(stored)) this._logs = stored;
+    } catch (e) {}
+
+    // "Leeren" im Logs-Reiter schreibt eine leere Liste in diagnostic_logs. Der Puffer
+    // hier wusste davon nichts: beim naechsten Speichern stand alles wieder da, und der
+    // Support-Bericht, der den Puffer liest, enthielt es ohnehin weiter. Eine leere Liste
+    // kommt nur von dort - die App selbst speichert erst, nachdem sie eine Zeile
+    // angehaengt hat.
+    try {
+      this.homey.settings.on('set', (key) => {
+        if (key !== 'diagnostic_logs') return;
+        let wert = null;
+        try { wert = this.homey.settings.get(key); } catch (e) {}
+        if (Array.isArray(wert) && wert.length === 0) this._logs = [];
+      });
     } catch (e) {}
 
     const version = this.homey.manifest?.version ?? '?';
@@ -204,11 +220,17 @@ class TuyaLocalApp extends Homey.App {
     });
     if (this._logs.length > LOG_MAX) this._trimLogs();
 
-    // Debounced flush to persistent store (max once per 5 s)
-    clearTimeout(this._flushTimer);
-    this._flushTimer = setTimeout(() => {
-      try { this.homey.settings.set('diagnostic_logs', this._logs); } catch (e) {}
-    }, 5000);
+    // Gespeichert wird hoechstens alle 5 s, und spaetestens 5 s nach der ersten neuen
+    // Zeile. Der Timer wurde bei jeder Zeile neu gestellt - gemeint war "hoechstens alle
+    // 5 s", herausgekommen ist "erst nach 5 s Ruhe". Schreibt die App oefter als alle
+    // 5 s etwas, kam die nie: gespeichert wurde dann erst beim Beenden, und nach einem
+    // Absturz oder Stromausfall fehlte alles seit der letzten Pause dieser Laenge.
+    if (!this._flushTimer) {
+      this._flushTimer = setTimeout(() => {
+        this._flushTimer = null;
+        try { this.homey.settings.set('diagnostic_logs', this._logs); } catch (e) {}
+      }, 5000);
+    }
   }
 
   /**
@@ -439,8 +461,9 @@ class TuyaLocalApp extends Homey.App {
         // Nach dem Wert, nicht nach dem Namen: dp_countdown_left_minutes und
         // dp_countdown_timer_numeric heissen so, sind aber Format-Schalter und keine
         // DP-Nummern. Unter "DP mapping" gelesen sehen sie aus wie eine kaputte
-        // Zuordnung.
-        const istDpNummer = (k) => k.startsWith('dp_') && typeof settings[k] === 'number';
+        // Zuordnung. Ebenso dp_light_dim_max und die anderen Grenzen: eine Zahl, aber
+        // keine DP-Nummer.
+        const istDpNummer = (k) => k.startsWith('dp_') && !isNotADpNumber(k) && typeof settings[k] === 'number';
         const dpKeys  = Object.keys(settings).filter(istDpNummer).sort();
         const others  = Object.keys(settings).filter((k) =>
           !istDpNummer(k) && !['ip', 'device_id', 'local_key', 'version',
@@ -559,10 +582,10 @@ class TuyaLocalApp extends Homey.App {
     // keep-Kennzeichen in addLog. Der Rest der 500 Eintraege ist Rauschen im Bericht.
     // Der laufende Puffer, nicht der gespeicherte.
     //
-    // Geschrieben wird gedrosselt, und der Timer wird bei jeder neuen Zeile
-    // zurueckgesetzt - ein Geraet, das alle drei Sekunden etwas meldet, schiebt das
-    // Speichern unbegrenzt vor sich her. Der gespeicherte Stand kann also beliebig alt
-    // sein, und er fehlte genau dort, wo es zaehlt: wer den Knopf drueckt, weil eben
+    // Geschrieben wird gedrosselt, hoechstens alle 5 s (bis 1.0.266 schob jede neue
+    // Zeile das Speichern weiter hinaus, ein Geraet, das alle drei Sekunden etwas
+    // meldete, unbegrenzt). Der gespeicherte Stand hinkt also hinterher, und er fehlte
+    // genau dort, wo es zaehlt: wer den Knopf drueckt, weil eben
     // etwas passiert ist, bekam alles ausser dem, was eben passiert war. In einem
     // gemeldeten Bericht fehlte die Connected-Zeile von drei Sekunden vorher.
     //
@@ -1102,7 +1125,7 @@ class TuyaLocalApp extends Homey.App {
 
         const settings = (() => { try { return device.getSettings() || {}; } catch (e) { return {}; } })();
         const configured = Object.entries(settings)
-          .filter(([k, v]) => k.startsWith('dp_') && Number.isInteger(v) && v > 0);
+          .filter(([k, v]) => k.startsWith('dp_') && !isNotADpNumber(k) && Number.isInteger(v) && v > 0);
         if (configured.length === 0) { note('no data points configured'); continue; }
 
         // Without a single reported data point we know nothing about this device, and
@@ -1965,6 +1988,7 @@ class TuyaLocalApp extends Homey.App {
 
   async onUninit() {
     clearTimeout(this._flushTimer);
+    this._flushTimer = null;
     try { this.homey.settings.set('diagnostic_logs', this._logs); } catch (e) {}
   }
 }
