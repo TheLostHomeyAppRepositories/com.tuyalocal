@@ -1014,7 +1014,7 @@ class TuyaLocalApp extends Homey.App {
           }
           cloudDps = await detectViaCloud(this.homey, id, maps.codeMap,
             (m) => this.log(`[${name}] ${m}`), maps.enumValuesMap || {}, null, maps.rangeMap || {},
-            { festeDps });
+            { festeDps, werfen: true });
         } catch (err) {
           skipped.push({ name, driver: driver.id, reason: `lookup failed: ${err.message}` });
           continue;
