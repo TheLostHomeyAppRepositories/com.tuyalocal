@@ -348,6 +348,8 @@ Some AC units send temperatures multiplied by 10 (e.g. `220` = 22.0 °C). The dr
 | `fan_speed_values` | `auto,low,medium,high,turbo` |
 | `swing_values` | `off,on` |
 
+A swing data point that only knows on and off (`true`/`false`) works with the default `off,on`: it shows as on or off, and the app sends it `true`/`false` rather than text.
+
 > **Units that number their modes instead of naming them.** Some air conditioners carry
 > `"0"` to `"4"` on DP 4 and nothing else. Write both sides, as `name=value`:
 >
@@ -543,7 +545,7 @@ Same settings as Dehumidifier (IP, Device ID, Local Key, Protocol Version, Polli
 | `dp_current_humidity` |  | `measure_humidity` | number | 14 | — |
 | `dp_target_humidity` | <img src="assets/capabilities/target_humidity.svg" height="24"> | `target_humidity` | number | 13 | — |
 | `dp_mode` | <img src="assets/capabilities/mode.svg" height="24"> | `mode` | enum | 24 | — |
-| `dp_fan_speed` | <img src="assets/capabilities/fan_speed.svg" height="24"> | `fan_speed` | enum | 0 | ✓ `0` = disabled |
+| `dp_fan_speed` | <img src="assets/capabilities/fan_speed.svg" height="24"> | `fan_speed` | enum | 0 | — the tile stays; with `0`, tapping it says no data point is set |
 | `dp_child_lock` | <img src="assets/capabilities/child_lock.svg" height="24"> | `child_lock` | boolean | 0 | ✓ `0` = disabled |
 | `dp_water_empty` |  | `alarm_water` | boolean | 0 | ✓ `0` = disabled |
 | `dp_countdown_timer` | <img src="assets/capabilities/countdown_timer.svg" height="24"> | `countdown_timer` | enum | 0 | ✓ `0` = disabled |
@@ -824,6 +826,7 @@ Same settings as Dehumidifier (IP, Device ID, Local Key, Protocol Version, Polli
 | Setting | Description | Default |
 |---|---|---|
 | `invert_position` | Enable if `0 %` = open and `100 %` = closed on your device | `false` |
+| `invert_control` | Enable if Open physically closes the curtain. Swaps the commands and reads the motor's replies the same way round, so the tile shows the direction you pressed | `false` |
 
 > **Position convention:** The driver maps `percent_control` where `0` = fully closed and `100` = fully open to Homey's `windowcoverings_set` (0.0–1.0). Enable `invert_position` if your device uses the opposite convention.
 
@@ -997,7 +1000,7 @@ These DPs fire a trigger when the device pushes a new value.
 |---|---|---|---|---|
 | `dp_doorbell` | Doorbell rang | boolean | 136 | `true` = ring event |
 | `dp_motion_event` | Motion detected | boolean | 115 | `true` = motion event |
-| `dp_alarm_message` | Ring or motion via alarm message | string (base64) | 0 | DP 185 on some devices; decodes `ipc_doorbell` / `ipc_motion` JSON |
+| `dp_alarm_message` | Ring or motion via alarm message | string (base64) | 0 | DP 185 on some devices; decodes `ipc_doorbell` / `ipc_motion` JSON. Rings through it when `dp_doorbell` is `0`, detects motion through it when `dp_motion_event` is `0` |
 
 > **Seed protection:** the ring and motion triggers are suppressed for the very first packet after each (re)connect to prevent false events. Subsequent packets fire normally.
 
@@ -1482,7 +1485,7 @@ Same settings as Dehumidifier.
 | `dp_depth` | <img src="assets/capabilities/measure_distance.svg" height="24"> | `measure_distance` | number | 2 |
 | `dp_state` | <img src="assets/capabilities/liquid_state.svg" height="24"> | `liquid_state`, `alarm_tank_empty`, `alarm_tank_full` | enum | 1 |
 
-`depth_divisor` defaults to `1000` — the depth arrives in millimetres.
+`depth_divisor` defaults to `1000` — the depth arrives in millimetres. Homey shows it in centimetres.
 
 `state_values` maps the raw strings, default `normal,lower_alarm,upper_alarm`. The state drives
 three capabilities from the one data point: the `liquid_state` picker showing which of the three it
@@ -2359,7 +2362,7 @@ fan: sub-capabilities (`onoff.fan`, `dim.fan`) and app-defined capabilities (`fa
 | Open garage door | Sends open command via `dp_door_control` or `dp_door_open` |
 | Close garage door | Sends close command via `dp_door_control` or `dp_door_close` |
 | Stop garage door | Sends stop via `dp_door_control` (AOSD/ZC34T) or `dp_switch` (BoboYun). WOFEA: use Toggle instead |
-| Toggle garage door | Sends a relay pulse on `dp_switch` — equivalent to pressing the wall button |
+| Toggle garage door | Sends a relay pulse on `dp_switch` — on, then off after 300 ms, equivalent to pressing the wall button |
 | Force garage door opener reconnect | Drops and re-establishes the TCP connection |
 | Refresh garage door values | Triggers an immediate GET request |
 

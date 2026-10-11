@@ -208,7 +208,7 @@ class GenericDevice extends BaseTuyaDevice {
         this.registerCapabilityListener(mapping.cap, (value) => {
           clearTimeout(this._debounceTimers.get(mapping.cap));
           // Resolve immediately so Homey UI stays responsive; command is delayed.
-          return new Promise((resolve) => {
+          return this._entprellVersprechen(mapping.cap, (resolve) => {
             this._debounceTimers.set(mapping.cap, setTimeout(() => {
               const dpValue = this._capToDP(value, mapping);
               this._set(mapping.dp, dpValue)

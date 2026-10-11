@@ -242,7 +242,7 @@ class EvChargerDevice extends BaseTuyaDevice {
     // Debounced because Homey may adjust target_power frequently.
     register('target_power', (value) => {
       clearTimeout(this._currentDebounceTimer);
-      return new Promise((resolve) => {
+      return this._entprellVersprechen('target_power', (resolve) => {
         this._currentDebounceTimer = setTimeout(async () => {
           const dp = this.getSetting('dp_charge_current');
           if (dp > 0) {
@@ -265,7 +265,7 @@ class EvChargerDevice extends BaseTuyaDevice {
 
     register('charge_delay_hours', (value) => {
       clearTimeout(this._delayDebounceTimer);
-      return new Promise((resolve) => {
+      return this._entprellVersprechen('charge_delay_hours', (resolve) => {
         this._delayDebounceTimer = setTimeout(async () => {
           const dp = this.getSetting('dp_timer_on');
           if (dp > 0) await this._set(dp, Math.round(value)).catch(() => {});

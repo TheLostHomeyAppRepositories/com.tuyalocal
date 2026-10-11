@@ -7,7 +7,7 @@ const { describeConnectFailure } = require('../../lib/connectFailure');
 const { detectProtocolVersion } = require('../../lib/autoDetect');
 const { scanNetwork }           = require('../../lib/networkScan');
 const { detectViaCloud, guessedDefaults }        = require('../../lib/dpCodeMap');
-const { leseWerteliste } = require('../../lib/utils.js');
+const { leseWerteliste, modusUndLuefter } = require('../../lib/utils.js');
 
 // Maps this driver's settings keys to the Tuya cloud "code" names that
 // commonly represent them. See lib/dpCodeMap.js.
@@ -261,12 +261,11 @@ class HumidifierDriver extends Homey.Driver {
     const currentEntry = humDps.find((d) => d.dp !== dp_target_humidity && d.val >= 20 && d.val <= 100) || humDps.find((d) => d.dp !== dp_target_humidity);
     const dp_current_humidity = currentEntry?.dp ?? 14;
 
+    // Mode and fan speed together: "auto", "low" and "high" are in both lists, and
+    // searched one after the other they could both land on the same DP.
     const KNOWN_MODES = ['auto', 'manual', 'normal', 'sleep', 'eco', 'boost', 'low', 'middle', 'high'];
-    const modeEntry = enumDps.find((d) => KNOWN_MODES.includes(String(d.val).toLowerCase()));
-    const dp_mode   = modeEntry?.dp ?? 24;
-
     const KNOWN_FAN   = ['low', 'high', 'medium', 'auto', 'turbo'];
-    const fanEntry    = enumDps.find((d) => KNOWN_FAN.includes(String(d.val).toLowerCase()));
+    const { dpModus: dp_mode, luefter: fanEntry } = modusUndLuefter(enumDps, KNOWN_MODES, KNOWN_FAN, 24);
     const dp_fan_speed = fanEntry?.dp ?? 0;
 
     const timerEntry = enumDps.find((d) => String(d.val) === 'cancel' || /^\d+h$/.test(String(d.val)));

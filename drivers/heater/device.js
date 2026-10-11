@@ -105,7 +105,7 @@ class HeaterDevice extends BaseTuyaDevice {
     // would orphan the pending timer of the previous registration.
     register('target_temperature', (value) => {
       clearTimeout(this._debounceTimers.get('target_temperature'));
-      return new Promise((resolve) => {
+      return this._entprellVersprechen('target_temperature', (resolve) => {
         this._debounceTimers.set('target_temperature', setTimeout(async () => {
           const dp      = this.getSetting('dp_target_temp');
           const divisor = this.getSetting('temp_divisor') || 1;

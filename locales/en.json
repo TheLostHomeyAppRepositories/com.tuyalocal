@@ -103,6 +103,7 @@
       "currentHumidity": "Current Humidity",
       "targetHumidity": "Target Humidity",
       "waterFull": "Water Tank Full",
+      "waterEmpty": "Water Tank Empty",
       "temperature": "Temperature",
       "anion": "Ioniser (Anion)",
       "oscillate": "Oscillate",

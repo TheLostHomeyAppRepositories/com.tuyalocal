@@ -113,7 +113,7 @@ class DehumidifierDevice extends BaseTuyaDevice {
         this.registerCapabilityListener(entry.capability, (value) => {
           clearTimeout(timer);
           // Resolve immediately so Homey UI stays responsive; command is delayed.
-          return new Promise((resolve) => {
+          return this._entprellVersprechen(entry.capability, (resolve) => {
             timer = setTimeout(() => {
               this._set(this.getSetting(entry.settingKey), value)
                 .then(resolve).catch(resolve);

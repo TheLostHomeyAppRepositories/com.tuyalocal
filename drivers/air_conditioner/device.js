@@ -125,7 +125,7 @@ class AirConditionerDevice extends BaseTuyaDevice {
     // the previous registration.
     const debounced = (key, fn) => (value) => {
       clearTimeout(this._debounceTimers.get(key));
-      return new Promise((resolve) => {
+      return this._entprellVersprechen(key, (resolve) => {
         this._debounceTimers.set(key, setTimeout(() => {
           Promise.resolve(fn(value)).then(resolve).catch(resolve);
         }, DEBOUNCE_MS));
@@ -139,8 +139,14 @@ class AirConditionerDevice extends BaseTuyaDevice {
         // nicht der Name, den Homey anzeigt. Ohne Zuordnung faellt idZuRoh auf den
         // Wert selbst zurueck, und es bleibt genau beim Bisherigen.
         const quelle = ENUM_QUELLE[entry.capability];
-        const roh = quelle ? idZuRoh(this.getSetting(quelle), value) : value;
-        return this._set(this.getSetting(entry.settingKey), roh);
+        const dp = this.getSetting(entry.settingKey);
+        let roh = quelle ? idZuRoh(this.getSetting(quelle), value) : value;
+        // Ein Schalter-DP bekommt einen Schalterwert. "on" als Text an einen DP, der
+        // true/false fuehrt, lehnt das Geraet ab - beim Swing gibt es beides.
+        if (quelle && this._istSchalterDp(dp)) {
+          roh = !['off', 'false', '0', ''].includes(String(roh).toLowerCase());
+        }
+        return this._set(dp, roh);
       };
       register(entry.capability, entry.debounce
         ? debounced(entry.capability, send)
@@ -190,6 +196,10 @@ class AirConditionerDevice extends BaseTuyaDevice {
     }
 
     for (const [dpStr, value] of Object.entries(dps)) {
+      if (typeof value === 'boolean') {
+        if (!this._schalterDps) this._schalterDps = new Set();
+        this._schalterDps.add(dpStr);
+      }
       if (this._lastDps[dpStr] === value) continue;
       this._lastDps[dpStr] = value;
       changed = true;
@@ -262,7 +272,7 @@ class AirConditionerDevice extends BaseTuyaDevice {
       // Werteliste das so sagt. Sagt sie nichts, bleibt der Wert, wie er kam.
       const quelle = ENUM_QUELLE[entry.capability];
       const converted = quelle
-        ? rohZuId(this.getSetting(quelle), entry.transform(value))
+        ? this._enumAusGeraet(this.getSetting(quelle), value, entry)
         : entry.transform(value);
 
       // Capture prev value before updating so the trigger token contains both old and new mode.
@@ -344,7 +354,28 @@ class AirConditionerDevice extends BaseTuyaDevice {
       );
       await this.setSettings(updates).catch(() => {});
       await this._syncOptionalCapabilities(OPTIONAL_CAPABILITIES);
+      // Die neuen Kacheln brauchen ihren Listener sofort - ohne ihn endete jedes
+      // Antippen in Homeys Fehler, bis die App neu startete.
+      this._registerListeners();
     }
+  }
+
+  /** Meldet dieser DP true/false? Aus dem, was er gemeldet hat. */
+  _istSchalterDp(dp) {
+    const s = String(dp);
+    return Boolean(this._schalterDps?.has(s)) || typeof this._lastDps?.[s] === 'boolean';
+  }
+
+  /**
+   * Was das Geraet meldet -> Eintrag der Auswahl. Ein Schalter-DP unter einer Auswahl
+   * - beim Swing haeufig - kam als "true"/"false" an, und beides steht in keiner Liste:
+   * die Kachel blieb leer. Er wird zu on/off, sofern die Werteliste ihn nicht selbst
+   * zuordnet ("on=true,off=false").
+   */
+  _enumAusGeraet(csv, value, entry) {
+    const id = rohZuId(csv, entry.transform(value));
+    if (typeof value === 'boolean' && (id === 'true' || id === 'false')) return value ? 'on' : 'off';
+    return id;
   }
 
   async _syncTempCapabilityOptions() {

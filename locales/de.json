@@ -103,6 +103,7 @@
       "currentHumidity": "Aktuelle Luftfeuchtigkeit",
       "targetHumidity": "Ziel-Luftfeuchtigkeit",
       "waterFull": "Wassertank voll",
+      "waterEmpty": "Wassertank leer",
       "temperature": "Temperatur",
       "anion": "Ionisator (Anion)",
       "oscillate": "Schwenken",

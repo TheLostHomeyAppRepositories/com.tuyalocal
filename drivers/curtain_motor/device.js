@@ -130,6 +130,17 @@ class CurtainMotorDevice extends BaseTuyaDevice {
 
   // â”€â”€ DPS handling â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
+  /**
+   * invert_control gilt in beide Richtungen. Gesendet wurde vertauscht, das Echo des
+   * Geraets aber wortwoertlich gelesen: "Auf" schickte close, das Echo close hiess
+   * "runter", und die Kachel zeigte das Gegenteil dessen, was gedrueckt wurde. Ebenso
+   * work_state - das Geraet nennt seine eigene Richtung, und die ist vertauscht.
+   */
+  _richtung(state, settings) {
+    if (!settings.invert_control) return state;
+    return state === 'up' ? 'down' : state === 'down' ? 'up' : state;
+  }
+
   async _handleDps(dps) {
     const settings = this.getSettings();
     let changed = false;
@@ -161,7 +172,7 @@ class CurtainMotorDevice extends BaseTuyaDevice {
 
         // â”€â”€ Control command echo â†’ windowcoverings_state â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         case 'control': {
-          const state = CONTROL_TO_STATE[String(value).toLowerCase()];
+          const state = this._richtung(CONTROL_TO_STATE[String(value).toLowerCase()], settings);
           if (state) {
             await this.setCapabilityValue('windowcoverings_state', state).catch(() => {});
           }
@@ -172,7 +183,7 @@ class CurtainMotorDevice extends BaseTuyaDevice {
         // Overrides the control echo while the motor is actively moving so the
         // tile shows "moving" rather than the last command sent.
         case 'work_state': {
-          const state = WORK_STATE_MAP[String(value).toLowerCase()];
+          const state = this._richtung(WORK_STATE_MAP[String(value).toLowerCase()], settings);
           if (state) {
             await this.setCapabilityValue('windowcoverings_state', state).catch(() => {});
           }
@@ -208,9 +219,13 @@ class CurtainMotorDevice extends BaseTuyaDevice {
           } else if (homey <= 0 && (prev === null || prev > 0)) {
             this._triggerClosed.trigger(this).catch(() => {});
           }
-          this._triggerPositionChanged
-            .trigger(this, { position: Math.round(homey * 100) })
-            .catch(() => {});
+          // Nur bei einer echten Aenderung. Nach jedem Neuverbinden ist _lastDps leer,
+          // die Position kommt unveraendert noch einmal, und die Karte feuerte jedes Mal.
+          if (prev === null || Math.round(prev * 100) !== Math.round(homey * 100)) {
+            this._triggerPositionChanged
+              .trigger(this, { position: Math.round(homey * 100) })
+              .catch(() => {});
+          }
           break;
         }
 

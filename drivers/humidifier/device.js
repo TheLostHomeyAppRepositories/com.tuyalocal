@@ -79,7 +79,7 @@ class HumidifierDevice extends BaseTuyaDevice {
         const cap = entry.capability;
         register(cap, (value) => {
           clearTimeout(this._debounceTimers[cap]);
-          return new Promise((resolve) => {
+          return this._entprellVersprechen(cap, (resolve) => {
             this._debounceTimers[cap] = setTimeout(() => {
               this._set(this.getSetting(entry.settingKey), value)
                 .then(resolve).catch(resolve);
@@ -88,10 +88,21 @@ class HumidifierDevice extends BaseTuyaDevice {
         });
       } else {
         register(entry.capability, async (value) => {
-          await this._set(this.getSetting(entry.settingKey), value);
+          await this._set(this._dpOderFehler(entry), value);
         });
       }
     }
+  }
+
+  /**
+   * Der DP einer Kachel, oder ein Fehler, den Homey anzeigt - nie ein Befehl an DP 0.
+   * fan_speed steht fest im Manifest, dp_fan_speed ist aber oft 0: die Kachel ist da,
+   * und ihr Antippen ging bisher als Befehl an DP 0 hinaus, ohne Wirkung und ohne Wort.
+   */
+  _dpOderFehler(entry) {
+    const dp = this.getSetting(entry.settingKey);
+    if (dp > 0) return dp;
+    throw new Error(`No data point set for ${entry.capability} (${entry.settingKey} is 0) - set it in the device settings`);
   }
 
   async _onDeleted() {

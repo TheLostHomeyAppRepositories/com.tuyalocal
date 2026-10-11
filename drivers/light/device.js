@@ -71,7 +71,7 @@ class LightDevice extends BaseTuyaDevice {
     this._dimTimer = null;
     this.registerCapabilityListener('dim', (value) => {
       clearTimeout(this._dimTimer);
-      return new Promise((resolve) => {
+      return this._entprellVersprechen('_dimTimer', (resolve) => {
         this._dimTimer = setTimeout(async () => {
           const mode = this.getCapabilityValue('light_mode');
           if (mode === 'color' && this.hasCapability('light_hue')) {
@@ -91,7 +91,7 @@ class LightDevice extends BaseTuyaDevice {
     this._tempTimer = null;
     this.registerCapabilityListener('light_temperature', (value) => {
       clearTimeout(this._tempTimer);
-      return new Promise((resolve) => {
+      return this._entprellVersprechen('_tempTimer', (resolve) => {
         this._tempTimer = setTimeout(async () => {
           const dp  = this.getSetting('dp_color_temp');
           const max = this.getSetting('color_temp_max') ?? 1000;
@@ -108,7 +108,7 @@ class LightDevice extends BaseTuyaDevice {
     this._hueTimer = null;
     this.registerCapabilityListener('light_hue', (value) => {
       clearTimeout(this._hueTimer);
-      return new Promise((resolve) => {
+      return this._entprellVersprechen('_hueTimer', (resolve) => {
         this._hueTimer = setTimeout(async () => {
           await this._sendColor({ h: value }).catch(() => {});
           resolve();
@@ -119,7 +119,7 @@ class LightDevice extends BaseTuyaDevice {
     this._satTimer = null;
     this.registerCapabilityListener('light_saturation', (value) => {
       clearTimeout(this._satTimer);
-      return new Promise((resolve) => {
+      return this._entprellVersprechen('_satTimer', (resolve) => {
         this._satTimer = setTimeout(async () => {
           await this._sendColor({ s: value }).catch(() => {});
           resolve();

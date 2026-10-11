@@ -153,7 +153,7 @@ class FanDevice extends BaseTuyaDevice {
     // ── dim (fan speed 0–1) ─────────────────────────────────────────────────
     register('dim', (value) => {
       clearTimeout(this._dimDebounceTimer);
-      return new Promise((resolve) => {
+      return this._entprellVersprechen('_dimDebounceTimer', (resolve) => {
         this._dimDebounceTimer = setTimeout(async () => {
           const dp = this.getSetting('dp_speed');
           if (dp > 0) {
@@ -173,7 +173,7 @@ class FanDevice extends BaseTuyaDevice {
     // showing a colour does nothing visible on the reported fixtures.
     register('dim.light', (value) => {
       clearTimeout(this._lightDimDebounceTimer);
-      return new Promise((resolve) => {
+      return this._entprellVersprechen('_lightDimDebounceTimer', (resolve) => {
         this._lightDimDebounceTimer = setTimeout(async () => {
           if (this.getCapabilityValue('light_mode') === 'color' && this.hasCapability('light_hue')) {
             await this._sendLightColor({ v: value }).catch(() => {});
@@ -210,7 +210,7 @@ class FanDevice extends BaseTuyaDevice {
     // ── light_hue / light_saturation → packed HSV colour ────────────────────
     register('light_hue', (value) => {
       clearTimeout(this._hueDebounceTimer);
-      return new Promise((resolve) => {
+      return this._entprellVersprechen('_hueDebounceTimer', (resolve) => {
         this._hueDebounceTimer = setTimeout(async () => {
           await this._sendLightColor({ h: value }).catch(() => {});
           resolve();
@@ -220,7 +220,7 @@ class FanDevice extends BaseTuyaDevice {
 
     register('light_saturation', (value) => {
       clearTimeout(this._satDebounceTimer);
-      return new Promise((resolve) => {
+      return this._entprellVersprechen('_satDebounceTimer', (resolve) => {
         this._satDebounceTimer = setTimeout(async () => {
           await this._sendLightColor({ s: value }).catch(() => {});
           resolve();
@@ -266,7 +266,7 @@ class FanDevice extends BaseTuyaDevice {
     // light tile bundling the mode switch with them, so nothing else puts the lamp
     // into colour mode. Sent first, and only when it is not already there.
     await this._ensureColourMode();
-    await this._set(dp, buildColorHex(h, s, v));
+    await this._set(dp, buildColorHex(h, s, v, this._colourFormat));
   }
 
   /** Puts the lamp into colour mode, unless it is there already. */
@@ -374,6 +374,10 @@ class FanDevice extends BaseTuyaDevice {
       if (settings.dp_light_colour > 0 && dp === settings.dp_light_colour) {
         const parsed = parseColorHex(String(value));
         if (parsed) {
+          // In derselben Sprache antworten - siehe lib/tuyaColor.js und fan_light.
+          // Gelesen wurde das lange Format schon, gesendet immer das kurze, und ein
+          // Geraet mit dem langen liest dessen erste sechs Zeichen als RGB: gruen.
+          this._colourFormat = parsed.format;
           if (this.hasCapability('light_hue')) {
             await this.setCapabilityValue('light_hue', parsed.h / 360).catch(() => {});
           }

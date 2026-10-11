@@ -152,7 +152,7 @@ class FanLightDevice extends BaseTuyaDevice {
     // ── dim.fan (fan speed 0–1) ─────────────────────────────────────────────
     register('dim.fan', (value) => {
       clearTimeout(this._dimDebounceTimer);
-      return new Promise((resolve) => {
+      return this._entprellVersprechen('_dimDebounceTimer', (resolve) => {
         this._dimDebounceTimer = setTimeout(async () => {
           const dp = this.getSetting('dp_speed');
           if (dp > 0) {
@@ -172,7 +172,7 @@ class FanLightDevice extends BaseTuyaDevice {
     // showing a colour does nothing visible on the reported fixtures.
     register('dim', (value) => {
       clearTimeout(this._lightDimDebounceTimer);
-      return new Promise((resolve) => {
+      return this._entprellVersprechen('_lightDimDebounceTimer', (resolve) => {
         this._lightDimDebounceTimer = setTimeout(async () => {
           if (this.getCapabilityValue('light_mode') === 'color' && this.hasCapability('light_hue')) {
             await this._sendLightColor({ v: value }).catch(() => {});
@@ -209,7 +209,7 @@ class FanLightDevice extends BaseTuyaDevice {
     // ── light_hue / light_saturation → packed HSV colour ────────────────────
     register('light_hue', (value) => {
       clearTimeout(this._hueDebounceTimer);
-      return new Promise((resolve) => {
+      return this._entprellVersprechen('_hueDebounceTimer', (resolve) => {
         this._hueDebounceTimer = setTimeout(async () => {
           await this._sendLightColor({ h: value }).catch(() => {});
           resolve();
@@ -219,7 +219,7 @@ class FanLightDevice extends BaseTuyaDevice {
 
     register('light_saturation', (value) => {
       clearTimeout(this._satDebounceTimer);
-      return new Promise((resolve) => {
+      return this._entprellVersprechen('_satDebounceTimer', (resolve) => {
         this._satDebounceTimer = setTimeout(async () => {
           await this._sendLightColor({ s: value }).catch(() => {});
           resolve();

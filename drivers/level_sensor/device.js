@@ -220,11 +220,13 @@ class LevelSensorDevice extends BaseTuyaDevice {
       }
 
       // ── Depth ─────────────────────────────────────────────────────────────
-      // measure_distance ist in Zentimetern deklariert; das Geraet zaehlt in ganzen
-      // Einheiten, je nach Modell Millimeter oder Zentimeter - dafuer ist der Teiler da.
+      // measure_distance ist in Zentimetern deklariert - die App definiert die
+      // Faehigkeit selbst (app.json, cm, ohne Nachkommastelle), nicht Homeys Meter. Der
+      // Teiler macht aus dem Rohwert Meter, daher mal 100. Ohne das wurden 1059 mm zu
+      // 1,059 und als "1 cm" angezeigt.
       if (settings.dp_depth > 0 && dp === settings.dp_depth) {
         if (this.hasCapability('measure_distance')) {
-          await this.setCapabilityValue('measure_distance', Number(value) / this._depthDivisor())
+          await this.setCapabilityValue('measure_distance', (Number(value) * 100) / this._depthDivisor())
             .catch(() => {});
         }
         continue;

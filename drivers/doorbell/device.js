@@ -89,8 +89,12 @@ class DoorbellDevice extends BaseTuyaDevice {
 
   async _handleDps(dps) {
     const settings = this.getSettings();
-    const dpDoorbell     = settings.dp_doorbell     || 136;
-    const dpMotionEvent  = settings.dp_motion_event  || 115;
+    // ?? und nicht ||: 0 heisst abgeschaltet und darf nicht auf die Vorgabe fallen.
+    // Mit || war dp_doorbell nie 0, und _handleAlarmMessage meldet ein Klingeln aus der
+    // Alarmmeldung nur bei abgeschaltetem dp_doorbell - eine Klingel, die nur dort
+    // klingelt, klingelte in Homey nie.
+    const dpDoorbell     = settings.dp_doorbell     ?? 136;
+    const dpMotionEvent  = settings.dp_motion_event  ?? 115;
     const dpAlarmMsg     = settings.dp_alarm_message || 0;
     const dpNightLight   = settings.dp_night_light   || 0;
     const dpAlarmPush    = settings.dp_alarm_push    || 0;

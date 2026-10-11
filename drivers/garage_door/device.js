@@ -93,11 +93,7 @@ class GarageDoorDevice extends BaseTuyaDevice {
         // after the pulse so the device DP returns to false, making the next press a
         // valid falseâ†’true edge.
         this.log(`Relay pulse (toggle mode): set(${dpSwitch}, true)`);
-        await this._set(dpSwitch, true, { fireAndForget: true });
-        this.homey.setTimeout(
-          () => this._set(dpSwitch, false, { fireAndForget: true }).catch(() => {}),
-          300,
-        );
+        await this._relaisPuls(dpSwitch);
       } else if (!value && dpOpen > 0) {
         this.log(`Sending open command: set(${dpOpen}, true)`);
         await this._set(dpOpen, true);
@@ -111,11 +107,7 @@ class GarageDoorDevice extends BaseTuyaDevice {
       } else if (dpSwitch > 0) {
         // Fallback: no control DP configured â€” pulse relay (same edge-reset logic as above).
         this.log(`Relay pulse (fallback): set(${dpSwitch}, true)`);
-        await this._set(dpSwitch, true, { fireAndForget: true });
-        this.homey.setTimeout(
-          () => this._set(dpSwitch, false, { fireAndForget: true }).catch(() => {}),
-          300,
-        );
+        await this._relaisPuls(dpSwitch);
       } else {
         throw new Error('No door control DP configured (set dp_door_control or dp_switch)');
       }
@@ -129,6 +121,20 @@ class GarageDoorDevice extends BaseTuyaDevice {
   }
 
   // â”€â”€ DPS handling â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+  /**
+   * Ein Relaisimpuls: ein, nach 300 ms wieder aus - siehe die Begruendung oben im
+   * Listener. Steht hier, damit die Flow-Karte "Umschalten" denselben Impuls schickt:
+   * sie sandte nur das true, und bei einem Tor, das nur auf die Flanke reagiert, tat
+   * ihr zweiter Aufruf nichts mehr.
+   */
+  async _relaisPuls(dp) {
+    await this._set(dp, true, { fireAndForget: true });
+    this.homey.setTimeout(
+      () => this._set(dp, false, { fireAndForget: true }).catch(() => {}),
+      300,
+    );
+  }
 
   async _handleDps(dps) {
     const settings = this.getSettings();

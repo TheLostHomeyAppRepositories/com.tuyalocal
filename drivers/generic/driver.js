@@ -94,6 +94,10 @@ class GenericDriver extends Homey.Driver {
       let failureError = '';
       let actualVersion  = String(version);
       const collectedDps = {};
+      // Ausserhalb des try, damit der catch sie schliessen kann. Sie stand im else-Zweig,
+      // der catch rief device.disconnect() auf einen Namen, den es dort nicht gibt - der
+      // ReferenceError ging im try darum verloren, und die Testverbindung blieb offen.
+      let device = null;
 
       try {
         let rawDps;
@@ -103,7 +107,7 @@ class GenericDriver extends Homey.Driver {
           rawDps        = result.dps;
           this.log(`Auto-detected protocol version: ${actualVersion}`);
         } else {
-          const device = new TuyAPI({
+          device = new TuyAPI({
             id: deviceId, key: localKey, ip,
             version: actualVersion,
             issueGetOnConnect: true,
@@ -136,7 +140,7 @@ class GenericDriver extends Homey.Driver {
       } catch (err) {
         connected = false;
         failureError = err.message;
-        try { device.disconnect(); } catch (_e) {}
+        try { device?.disconnect(); } catch (_e) {}
         this.log('Connection test failed:', err.message);
       }
 

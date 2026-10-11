@@ -59,7 +59,8 @@ class GarageDoorDriver extends Homey.Driver {
       .registerRunListener(async (args) => {
         const dp = args.device.getSetting('dp_switch');
         if (!dp || dp === 0) throw new Error('Switch DP not configured');
-        return args.device._set(dp, true, { fireAndForget: true });
+        // Derselbe Impuls wie die Kachel, mit dem Zuruecksetzen nach 300 ms.
+        return args.device._relaisPuls(dp);
       });
 
     // Stop:
