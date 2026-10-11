@@ -545,7 +545,7 @@ Same settings as Dehumidifier (IP, Device ID, Local Key, Protocol Version, Polli
 | `dp_current_humidity` |  | `measure_humidity` | number | 14 | — |
 | `dp_target_humidity` | <img src="assets/capabilities/target_humidity.svg" height="24"> | `target_humidity` | number | 13 | — |
 | `dp_mode` | <img src="assets/capabilities/mode.svg" height="24"> | `mode` | enum | 24 | — |
-| `dp_fan_speed` | <img src="assets/capabilities/fan_speed.svg" height="24"> | `fan_speed` | enum | 0 | — the tile stays; with `0`, tapping it says no data point is set |
+| `dp_fan_speed` | <img src="assets/capabilities/fan_speed.svg" height="24"> | `fan_speed` | enum | 0 | ✓ `0` = disabled |
 | `dp_child_lock` | <img src="assets/capabilities/child_lock.svg" height="24"> | `child_lock` | boolean | 0 | ✓ `0` = disabled |
 | `dp_water_empty` |  | `alarm_water` | boolean | 0 | ✓ `0` = disabled |
 | `dp_countdown_timer` | <img src="assets/capabilities/countdown_timer.svg" height="24"> | `countdown_timer` | enum | 0 | ✓ `0` = disabled |

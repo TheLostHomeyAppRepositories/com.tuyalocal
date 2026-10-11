@@ -19,6 +19,9 @@ const DP_PROFILE = [
 ];
 
 const OPTIONAL_CAPABILITIES = [
+  // Wie im README dokumentiert: bei 0 keine Kachel. fan_speed steht fest im Manifest,
+  // dp_fan_speed ist aber oft 0 - die Kachel war da und schickte ihr Antippen an DP 0.
+  { setting: 'dp_fan_speed',       capability: 'fan_speed'           },
   { setting: 'dp_temperature',     capability: 'measure_temperature' },
   { setting: 'dp_anion',           capability: 'anion'               },
   { setting: 'dp_child_lock',      capability: 'child_lock'          },
@@ -96,8 +99,9 @@ class HumidifierDevice extends BaseTuyaDevice {
 
   /**
    * Der DP einer Kachel, oder ein Fehler, den Homey anzeigt - nie ein Befehl an DP 0.
-   * fan_speed steht fest im Manifest, dp_fan_speed ist aber oft 0: die Kachel ist da,
-   * und ihr Antippen ging bisher als Befehl an DP 0 hinaus, ohne Wirkung und ohne Wort.
+   * Fuer die Kacheln, die fest im Manifest stehen und nicht verschwinden, wenn ihr DP
+   * auf 0 gestellt wird (Modus, Zielfeuchte): ihr Antippen ging sonst als Befehl an
+   * DP 0 hinaus, ohne Wirkung und ohne Wort.
    */
   _dpOderFehler(entry) {
     const dp = this.getSetting(entry.settingKey);
@@ -194,7 +198,9 @@ class HumidifierDevice extends BaseTuyaDevice {
       await this._syncOptionalCapabilities(OPTIONAL_CAPABILITIES);
       this._registerListeners(); // newly added capabilities need listeners immediately
     }
-    if (changedKeys.some((k) => ['mode_values', 'fan_speed_values'].includes(k))) {
+    // dp_fan_speed dabei: geht er von 0 auf eine Nummer, kommt die Kachel eben erst
+    // dazu und braucht ihre Werteliste.
+    if (changedKeys.some((k) => ['mode_values', 'fan_speed_values', 'dp_fan_speed'].includes(k))) {
       await this._syncEnumOptions('mode',      this.getSetting('mode_values'));
       await this._syncEnumOptions('fan_speed', this.getSetting('fan_speed_values'));
     }
