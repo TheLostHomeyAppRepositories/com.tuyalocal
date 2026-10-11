@@ -7,6 +7,8 @@
 // reached — the settings page gets a bare "Cannot GET /api/app/<id>/<path>", which
 // looks like a naming problem and is not one. The keys happen to be the hyphen-free
 // spelling of their paths, but nothing derives one from the other.
+// Fix It: mit token=... wendet jede Pruefung genau die Vorschau an, die dieses Token
+// bekommen hat (siehe _fixItAbschluss in app.js), statt neu zu pruefen.
 module.exports = {
   async cloudlookup({ homey, query }) {
     const { accessId, accessSecret, region } = query;
@@ -23,6 +25,7 @@ module.exports = {
   // the parameter apply its changes instead of showing them. Defaulting to the harmless
   // direction means a mistake in the settings page cannot save anything.
   async applycloudvalues({ homey, query }) {
+    if (query?.token) return homey.app.fixItVorschauAnwenden('values', query.token);
     return homey.app.applyCloudValues({
       onlyDevice: query?.device || null,
       dryRun:     query?.dryRun !== '0',
@@ -31,6 +34,7 @@ module.exports = {
   // Finds configured data points the device provably does not have. Defaults to a
   // dry run: only dryRun=0 actually switches them off.
   async findphantomdps({ homey, query }) {
+    if (query?.token) return homey.app.fixItVorschauAnwenden('phantom', query.token);
     return homey.app.findPhantomDps({
       onlyDevice: query?.device || null,
       dryRun:     query?.dryRun !== '0',
@@ -39,6 +43,7 @@ module.exports = {
   // Compares each stored local key against the Tuya account. Dry run by default;
   // the keys themselves are never returned, only a shortened form.
   async findstalekeys({ homey, query }) {
+    if (query?.token) return homey.app.fixItVorschauAnwenden('keys', query.token);
     return homey.app.findStaleKeys({
       onlyDevice: query?.device || null,
       dryRun:     query?.dryRun !== '0',
@@ -47,6 +52,7 @@ module.exports = {
   // Devices working on a different protocol version than the one configured. Needs no
   // cloud credentials.
   async findprotocolmismatch({ homey, query }) {
+    if (query?.token) return homey.app.fixItVorschauAnwenden('protocol', query.token);
     return homey.app.findProtocolMismatch({
       onlyDevice: query?.device || null,
       dryRun:     query?.dryRun !== '0',
@@ -55,6 +61,7 @@ module.exports = {
   // Reads the divisor Tuya declares per data point and stores it. Dry run unless
   // dryRun=0, like the others.
   async findscalemismatch({ homey, query }) {
+    if (query?.token) return homey.app.fixItVorschauAnwenden('scale', query.token);
     return homey.app.findScaleMismatch({
       onlyDevice: query?.device || null,
       dryRun:     query?.dryRun !== '0',
@@ -66,6 +73,7 @@ module.exports = {
     const bundle = await homey.app.buildSupportBundle({
       includeCloud: query?.cloud !== '0',
       onlyDevice:   query?.device || null,
+      onlyDeviceId: query?.deviceId || null,
       // The cloud is queried one device after another, so on a dozen devices this
       // request takes several seconds. Pushed to the settings page as it goes, so
       // the page can count up instead of showing one frozen message.

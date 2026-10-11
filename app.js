@@ -6,6 +6,13 @@ const https  = require('https');
 
 const { isNotADpNumber } = require('./lib/dpCodeMap');
 
+// Wie lange eine Fix-It-Vorschau angewendet werden kann. Danach wird neu geprueft.
+const VORSCHAU_MS = 10 * 60 * 1000;
+const SCHLUESSEL_LAEUFT = 'connected and receiving data on this connection - the stored key '
+  + 'demonstrably works, so it is left alone. Correct it by hand if you really mean to replace it.';
+/** Was von einem Fix-It-Eintrag zur Einstellungsseite geht - nie die vollen Werte. */
+const fixItAnzeige = (e) => ({ name: e.name, driver: e.driver, changes: e.changes, ...(e.anzeige || {}) });
+
 const LOG_MAX = 500;
 // Wie viele *verschiedene* Meldungen der Bericht auflistet. Nach dem Zusammenfassen
 // gleicher Zeilen sind das sehr viel weniger als LOG_MAX, und der Deckel sorgt dafuer,
@@ -316,7 +323,7 @@ class TuyaLocalApp extends Homey.App {
    *   per device in structured form so the settings page can prefill a GitHub
    *   issue from them instead of parsing them back out of the text.
    */
-  async buildSupportBundle({ includeCloud = true, onlyDevice = null, onProgress = null } = {}) {
+  async buildSupportBundle({ includeCloud = true, onlyDevice = null, onlyDeviceId = null, onProgress = null } = {}) {
     const REDACTED = '********';
     const pad = (s, n) => String(s).padEnd(n);
     const out = [];
@@ -388,7 +395,12 @@ class TuyaLocalApp extends Homey.App {
         // the header rather than further down. The result is reused by the cloud
         // spec section below — one cloud call per device, as before.
         const sub = istUntergeraet(device);
-        const wantCloud = cloudUsable && !sub && (!onlyDevice || device.getName() === onlyDevice);
+        // Ueber die Kennung, wenn die Seite sie mitgibt: der Name ist nicht eindeutig -
+        // zwei "Licht" in zwei Raeumen -, und ein umbenanntes Geraet, das seither nichts
+        // geschickt hat, steht in DP Debug noch unter dem alten. Der GitHub-Bericht nahm
+        // dann das erste Geraet der Liste.
+        const gemeint = onlyDeviceId ? id === onlyDeviceId : (!onlyDevice || device.getName() === onlyDevice);
+        const wantCloud = cloudUsable && !sub && gemeint;
         let cloudDetail = null;
         let cloudError  = null;
         if (wantCloud && id) {
@@ -521,6 +533,9 @@ class TuyaLocalApp extends Homey.App {
           available: device.getAvailable(),
           dpTable:   dpLines.join('\n'),
           cloudSpec: '',   // filled below when the cloud answers
+          // Das Geraet, nach dem gefragt wurde. Die Seite sucht es hierueber, nicht ueber
+          // den Namen, und faellt nicht mehr auf das erste zurueck.
+          selected:  Boolean(onlyDeviceId || onlyDevice) && gemeint,
         };
         devices.push(record);
 
@@ -935,6 +950,111 @@ class TuyaLocalApp extends Homey.App {
     };
   }
 
+  // ── Fix It: Vorschau und Anwenden ──────────────────────────────────────────
+
+  /**
+   * Gemeinsames Ende aller Fix-It-Pruefungen.
+   *
+   * "Apply" liess die Pruefung ein zweites Mal laufen, mit dryRun aus. Zwischen Vorschau
+   * und Bestaetigung kann sich alles aendern - ein Geraet verbindet neu, die Cloud
+   * antwortet anders -, und angewendet wurde dann etwas anderes als gezeigt. Bei den
+   * Schluesseln war das gefaehrlich: ein Geraet, das die Vorschau als "verbunden und
+   * laeuft" ausgelassen hatte, bekam beim Apply den Cloud-Schluessel, wenn es in dem
+   * Moment gerade neu verband - ohne je in der Liste gestanden zu haben.
+   *
+   * Jetzt merkt sich die Vorschau ihre Eintraege unter einem Token, mit den vollen Werten
+   * und dem Stand davor. Apply schickt nur das Token und wendet genau diese an, und nur
+   * dort, wo die Einstellung seither unveraendert ist. Nebenbei faellt der zweite Durchgang
+   * durch die Cloud weg. Die Werte bleiben in der App; zur Einstellungsseite gehen wie
+   * bisher nur die Anzeigen, bei Schluesseln gekuerzt.
+   *
+   * Ein Eintrag: { device, name, driver, changes, patch, vorher, protokoll, sperre?,
+   * anzeige? }. sperre(device) gibt einen Grund zurueck, wenn der Eintrag beim Anwenden
+   * nicht mehr gelten darf.
+   *
+   * @param {string} pruefung  Name der Pruefung; ein Token gilt nur fuer seine.
+   */
+  async _fixItAbschluss(pruefung, eintraege, skipped, dryRun) {
+    if (dryRun) {
+      return {
+        devices: eintraege.map(fixItAnzeige),
+        skipped,
+        dryRun: true,
+        token: eintraege.length > 0 ? this._merkeVorschau(pruefung, eintraege) : null,
+      };
+    }
+    const r = await this._fixItAnwenden(eintraege);
+    return { devices: r.devices, skipped: skipped.concat(r.skipped), dryRun: false };
+  }
+
+  _merkeVorschau(pruefung, eintraege) {
+    if (!this._vorschauen) this._vorschauen = new Map();
+    const jetzt = Date.now();
+    for (const [k, v] of this._vorschauen) {
+      if (jetzt - v.zeit > VORSCHAU_MS) this._vorschauen.delete(k);
+    }
+    const token = crypto.randomBytes(12).toString('hex');
+    this._vorschauen.set(token, { pruefung, eintraege, zeit: jetzt });
+    return token;
+  }
+
+  /** Apply von der Einstellungsseite: genau die Vorschau zu diesem Token, einmal. */
+  async fixItVorschauAnwenden(pruefung, token) {
+    const v = this._vorschauen?.get(String(token || ''));
+    if (!v || v.pruefung !== pruefung || Date.now() - v.zeit > VORSCHAU_MS) {
+      throw new Error('This preview is no longer available - it expires after '
+        + `${Math.round(VORSCHAU_MS / 60000)} minutes and does not survive an app restart. `
+        + 'Run the check again.');
+    }
+    this._vorschauen.delete(String(token));
+    const r = await this._fixItAnwenden(v.eintraege);
+    return { devices: r.devices, skipped: r.skipped, dryRun: false };
+  }
+
+  async _fixItAnwenden(eintraege) {
+    const devices = [];
+    const skipped = [];
+    const gekoppelt = new Set();
+    for (const d of Object.values(this.homey.drivers.getDrivers())) {
+      for (const g of d.getDevices()) gekoppelt.add(g);
+    }
+    for (const e of eintraege) {
+      const note = (reason) => skipped.push({ name: e.name, driver: e.driver, reason });
+      if (!gekoppelt.has(e.device)) { note('no longer paired'); continue; }
+      const anders = Object.entries(e.vorher || {}).find(([k, wert]) => {
+        let jetzt;
+        try { jetzt = e.device.getSetting(k); } catch (err) { jetzt = undefined; }
+        return (jetzt ?? null) !== (wert ?? null);
+      });
+      if (anders) {
+        note(`${anders[0]} has changed since the preview - run the check again`);
+        continue;
+      }
+      const grund = typeof e.sperre === 'function' ? e.sperre(e.device) : null;
+      if (grund) { note(grund); continue; }
+      try {
+        await e.device.setSettings(e.patch);
+        devices.push(fixItAnzeige(e));
+        if (e.protokoll) this.log(`[${e.name}] ${e.protokoll}`);
+      } catch (err) {
+        note(`could not save: ${err.message}`);
+      }
+    }
+    return { devices, skipped };
+  }
+
+  /**
+   * Haelt die Schluesselpruefung sich heraus? Ja, wenn das Geraet verbunden ist und auf
+   * genau dieser Verbindung schon Daten entschluesselt hat - dann arbeitet der
+   * gespeicherte Schluessel. Bisher galt everData, und das haelt fuer den ganzen App-Lauf:
+   * ein Geraet, das in der Tuya-App neu angelernt wurde, verbindet sich danach neu, und auf
+   * 3.1-3.3 oeffnet sich der Socket mit jedem Schluessel. Es galt weiter als "laeuft" -
+   * genau das Geraet, das die Pruefung reparieren soll.
+   */
+  _schluesselLaeuft(device) {
+    return device._conn?.connected === true && device._conn?.stats?.dataThisConnection === true;
+  }
+
   /**
    * Re-reads the manufacturer's declared enum ranges for devices that are already
    * paired, and writes them into the companion "…_values" settings.
@@ -971,7 +1091,7 @@ class TuyaLocalApp extends Homey.App {
     }
 
     const { detectViaCloud } = require('./lib/dpCodeMap');
-    const devices = [];
+    const eintraege = [];
     const skipped = [];
 
     for (const driver of Object.values(this.homey.drivers.getDrivers())) {
@@ -1032,6 +1152,7 @@ class TuyaLocalApp extends Homey.App {
           ...Object.values(maps.rangeMap || {}).flatMap((r) => Object.values(r || {})),
         ].filter(Boolean));
         const changes = [];
+        const vorher  = {};
         for (const [key, value] of Object.entries(cloudDps)) {
           if (!allowed.has(key)) continue;
           const isText   = typeof value === 'string' && value.trim();
@@ -1041,6 +1162,7 @@ class TuyaLocalApp extends Homey.App {
           try { current = device.getSetting(key); } catch (e) {}
           if (current === value) continue;
           changes.push({ key, from: current ?? '', to: value });
+          vorher[key] = current;
         }
 
         if (changes.length === 0) {
@@ -1050,25 +1172,16 @@ class TuyaLocalApp extends Homey.App {
           continue;
         }
 
-        if (dryRun) {
-          devices.push({ name, driver: driver.id, changes });
-          continue;
-        }
-
-        try {
-          const patch = {};
-          for (const c of changes) patch[c.key] = c.to;
-          await device.setSettings(patch);
-          devices.push({ name, driver: driver.id, changes });
-          this.log(`[${name}] cloud value lists applied: `
-            + changes.map((c) => `${c.key} = ${c.to}`).join('; '));
-        } catch (err) {
-          skipped.push({ name, driver: driver.id, reason: `could not save: ${err.message}` });
-        }
+        const patch = {};
+        for (const c of changes) patch[c.key] = c.to;
+        eintraege.push({
+          device, name, driver: driver.id, changes, patch, vorher,
+          protokoll: 'cloud value lists applied: ' + changes.map((c) => `${c.key} = ${c.to}`).join('; '),
+        });
       }
     }
 
-    return { devices, skipped, dryRun };
+    return this._fixItAbschluss('values', eintraege, skipped, dryRun);
   }
 
   /**
@@ -1107,7 +1220,7 @@ class TuyaLocalApp extends Homey.App {
       throw new Error('Cloud Lookup is not configured. Enter your Tuya API credentials first.');
     }
 
-    const devices = [];
+    const eintraege = [];
     const skipped = [];
 
     for (const driver of Object.values(this.homey.drivers.getDrivers())) {
@@ -1152,30 +1265,19 @@ class TuyaLocalApp extends Homey.App {
         if (changes.length === 0) { note('nothing points at a missing data point'); continue; }
 
         const since = read('seenSince');
-        const entry = {
-          name,
-          driver:   driver.id,
-          changes,
-          watchedSince: since || null,
-          seenCount: seen.size,
-        };
-
-        if (dryRun) { devices.push(entry); continue; }
-
-        try {
-          const patch = {};
-          for (const c of changes) patch[c.key] = 0;
-          await device.setSettings(patch);
-          devices.push(entry);
-          this.log(`[${name}] switched off data points the device does not have: `
-            + changes.map((c) => `${c.key} (was ${c.from})`).join(', '));
-        } catch (err) {
-          note(`could not save: ${err.message}`);
-        }
+        const patch = {};
+        const vorher = {};
+        for (const c of changes) { patch[c.key] = 0; vorher[c.key] = c.from; }
+        eintraege.push({
+          device, name, driver: driver.id, changes, patch, vorher,
+          anzeige: { watchedSince: since || null, seenCount: seen.size },
+          protokoll: 'switched off data points the device does not have: '
+            + changes.map((c) => `${c.key} (was ${c.from})`).join(', '),
+        });
       }
     }
 
-    return { devices, skipped, dryRun };
+    return this._fixItAbschluss('phantom', eintraege, skipped, dryRun);
   }
 
   /**
@@ -1308,7 +1410,7 @@ class TuyaLocalApp extends Homey.App {
       return str.length > 4 ? `${str.slice(0, 4)}\u2026 (${str.length} chars)` : '(empty)';
     };
 
-    const devices = [];
+    const eintraege = [];
     const skipped = [];
 
     for (const driver of Object.values(this.homey.drivers.getDrivers())) {
@@ -1333,16 +1435,13 @@ class TuyaLocalApp extends Homey.App {
         // Cloud ist nicht immer die, mit der das Geraet gerade arbeitet. Sein Import
         // hat einen laufenden Schluessel durch einen aelteren ersetzt, und das Geraet
         // verstummte. Er hat es mit einem bleibenden Kennzeichen geloest; hier genuegt
-        // der Live-Zustand, der nicht veralten kann.
+        // der Live-Zustand - und zwar der dieser Verbindung, siehe _schluesselLaeuft.
         //
         // Das wiegt seit dem Rueckfallweg ueber die Kennung schwerer: der bringt die
         // Pruefung auf Konten, deren Auflistung gesperrt ist - und deren Cloud-Stand
         // ist am ehesten der aeltere.
-        const laeuft = device._conn?.connected === true
-          && device._conn?.stats?.everData === true;
-        if (laeuft) {
-          note('connected and receiving data — the stored key demonstrably works, so it '
-            + 'is left alone. Correct it by hand if you really mean to replace it.');
+        if (this._schluesselLaeuft(device)) {
+          note(SCHLUESSEL_LAEUFT);
           continue;
         }
 
@@ -1362,27 +1461,27 @@ class TuyaLocalApp extends Homey.App {
         }
         if (!entry.local_key) { note('the cloud account holds no key for it'); continue; }
 
-        let stored = '';
-        try { stored = device.getSetting('local_key') || ''; } catch (e) {}
+        let roh = null;
+        try { roh = device.getSetting('local_key'); } catch (e) {}
+        const stored = roh || '';
         if (stored === entry.local_key) { note('key is up to date'); continue; }
 
         const change = { key: 'local_key', from: short(stored), to: short(entry.local_key) };
 
-        if (dryRun) { devices.push({ name, driver: driver.id, changes: [change] }); continue; }
-
-        try {
-          // Writing this reconnects the device, which is the point: onSettings treats
-          // local_key as a connection setting.
-          await device.setSettings({ local_key: entry.local_key });
-          devices.push({ name, driver: driver.id, changes: [change] });
-          this.log(`[${name}] local key updated from the Tuya account`);
-        } catch (err) {
-          note(`could not save: ${err.message}`);
-        }
+        // Writing this reconnects the device, which is the point: onSettings treats
+        // local_key as a connection setting. Beim Anwenden noch einmal gefragt: liefert
+        // das Geraet inzwischen Daten, arbeitet sein Schluessel, und er bleibt.
+        eintraege.push({
+          device, name, driver: driver.id, changes: [change],
+          patch: { local_key: entry.local_key },
+          vorher: { local_key: roh },
+          protokoll: 'local key updated from the Tuya account',
+          sperre: (d) => (this._schluesselLaeuft(d) ? SCHLUESSEL_LAEUFT : null),
+        });
       }
     }
 
-    return { devices, skipped, dryRun };
+    return this._fixItAbschluss('keys', eintraege, skipped, dryRun);
   }
 
   /**
@@ -1401,7 +1500,7 @@ class TuyaLocalApp extends Homey.App {
    * @returns {Promise<{devices: Array, skipped: Array, dryRun: boolean}>}
    */
   async findProtocolMismatch({ onlyDevice = null, dryRun = true } = {}) {
-    const devices = [];
+    const eintraege = [];
     const skipped = [];
 
     for (const driver of Object.values(this.homey.drivers.getDrivers())) {
@@ -1427,8 +1526,9 @@ class TuyaLocalApp extends Homey.App {
         const inUse = String(conn._version || '');
         if (!inUse) { note('connection reports no version'); continue; }
 
-        let configured = '';
-        try { configured = String(device.getSetting('version') || ''); } catch (e) {}
+        let rohVersion = null;
+        try { rohVersion = device.getSetting('version'); } catch (e) {}
+        const configured = String(rohVersion || '');
         if (configured === inUse) { note('protocol version is correct'); continue; }
 
         const change = {
@@ -1437,19 +1537,20 @@ class TuyaLocalApp extends Homey.App {
           to:   inUse,
         };
 
-        if (dryRun) { devices.push({ name, driver: driver.id, changes: [change] }); continue; }
-
-        try {
-          await device.setSettings({ version: inUse });
-          devices.push({ name, driver: driver.id, changes: [change] });
-          this.log(`[${name}] protocol version corrected to ${inUse} (was ${change.from})`);
-        } catch (err) {
-          note(`could not save: ${err.message}`);
-        }
+        eintraege.push({
+          device, name, driver: driver.id, changes: [change],
+          patch: { version: inUse },
+          vorher: { version: rohVersion },
+          protokoll: `protocol version corrected to ${inUse} (was ${change.from})`,
+          // Die Verbindung kann inzwischen weitergewechselt haben.
+          sperre: (d) => (String(d._conn?._version || '') !== inUse
+            ? 'the connection is no longer on ' + inUse + ' - run the check again'
+            : null),
+        });
       }
     }
 
-    return { devices, skipped, dryRun };
+    return this._fixItAbschluss('protocol', eintraege, skipped, dryRun);
   }
 
   /**
@@ -1516,7 +1617,7 @@ class TuyaLocalApp extends Homey.App {
       return (rule.min === undefined || n >= rule.min) && (rule.max === undefined || n <= rule.max);
     };
 
-    const devices = [];
+    const eintraege = [];
     const skipped = [];
 
     for (const driver of Object.values(this.homey.drivers.getDrivers())) {
@@ -1607,25 +1708,22 @@ class TuyaLocalApp extends Homey.App {
           continue;
         }
 
-        if (dryRun) { devices.push({ name, driver: driver.id, changes }); continue; }
-
-        try {
-          const patch = {};
-          for (const c of changes) {
-            // Number fields must be written as numbers, dropdowns as their option string.
-            patch[c.key] = rules[c.key] && rules[c.key].list ? c.to : Number(c.to);
-          }
-          await device.setSettings(patch);
-          devices.push({ name, driver: driver.id, changes });
-          this.log(`[${name}] scaling set from the specification: `
-            + changes.map((c) => `${c.key} = ${c.to}`).join(', '));
-        } catch (err) {
-          note(`could not save: ${err.message}`);
+        const patch = {};
+        const vorher = {};
+        for (const c of changes) {
+          // Number fields must be written as numbers, dropdowns as their option string.
+          patch[c.key] = rules[c.key] && rules[c.key].list ? c.to : Number(c.to);
+          vorher[c.key] = settings[c.key];
         }
+        eintraege.push({
+          device, name, driver: driver.id, changes, patch, vorher,
+          protokoll: 'scaling set from the specification: '
+            + changes.map((c) => `${c.key} = ${c.to}`).join(', '),
+        });
       }
     }
 
-    return { devices, skipped, dryRun };
+    return this._fixItAbschluss('scale', eintraege, skipped, dryRun);
   }
   async _tuyaGetToken(host, clientId, secret) {
     const path = '/v1.0/token?grant_type=1';
@@ -1974,13 +2072,18 @@ class TuyaLocalApp extends Homey.App {
   }
 
   async _tuyaRequest(host, requestPath, clientId, secret, token) {
-    // Retry up to 3 times on Tuya rate-limit (code 429 or code 1010).
+    // Retry up to 3 times on Tuya rate-limit (code 429).
     // Tuya enforces 10 req/s per client_id — rapid batch calls can exceed this.
+    //
+    // 1010 stand mit in der Liste und ist kein Ratenlimit: es heisst "token invalid".
+    // Dasselbe Token bekommt beim zweiten Mal dieselbe Antwort; die Wiederholung kostete
+    // nur 6 s je Abfrage - bei der Kontosuche ueber sieben Wege mehr als eine halbe
+    // Minute, bevor der Fehler ankam.
     const RETRY_DELAYS = [1000, 2000, 3000];
     for (let attempt = 0; attempt <= RETRY_DELAYS.length; attempt++) {
       const res = await this._tuyaRequestOnce(host, requestPath, clientId, secret, token);
       const code = res.code ?? res.error_code;
-      if (res.success || (code !== 429 && code !== 1010)) return res;
+      if (res.success || code !== 429) return res;
       if (attempt === RETRY_DELAYS.length) return res;
       await new Promise((r) => setTimeout(r, RETRY_DELAYS[attempt]));
     }

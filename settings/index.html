@@ -2852,9 +2852,12 @@
 
       // onlyDevice restricts the cloud lookup to that one device: reporting a single
       // device otherwise costs one cloud request per device in the house.
+      // Ein Geraet wird ueber seine Kennung angefragt ({ id }), nicht ueber den Namen:
+      // Namen sind nicht eindeutig, und der in DP Debug kann veraltet sein.
       function fetchBundle(onlyDevice, cb) {
         var url = '/diagnostics';
-        if (onlyDevice) url += '?device=' + encodeURIComponent(onlyDevice);
+        if (onlyDevice && onlyDevice.id) url += '?deviceId=' + encodeURIComponent(onlyDevice.id);
+        else if (onlyDevice) url += '?device=' + encodeURIComponent(onlyDevice);
         Homey.api('GET', url, function(err, res) {
           if (err) { cb(err); return; }
           _bundle = res;
@@ -2954,11 +2957,11 @@
         btn.disabled = true;
         var orig = btn.textContent;
         btn.textContent = 'Preparing…';
-        fetchBundle(name, function(err, res) {
+        fetchBundle({ id: sel.value }, function(err, res) {
           btn.disabled = false;
           btn.textContent = orig;
           if (err) { alert('Could not collect the details: ' + (err.message || err)); return; }
-          var dev = (res.devices || []).filter(function(d) { return d.name === name; })[0] || {};
+          var dev = (res.devices || []).filter(function(d) { return d.selected; })[0] || {};
           var headline = 'Tuya Local ' + (res.appVersion || '?') + ' — ' + name
             + (dev.driver ? ' (' + dev.driver + ')' : '')
             + (dev.protocol ? ', protocol ' + dev.protocol : '');
@@ -3003,14 +3006,20 @@
         btn.disabled = true;
         var orig = btn.textContent;
         btn.textContent = 'Preparing…';
-        // Pass the device name so only its cloud specification is fetched.
-        fetchBundle(name, function(err, res) {
+        // Pass the device id so only its cloud specification is fetched - and so the
+        // issue describes this device. Matched on the name, two devices called the same
+        // gave the first one's details, and a renamed one gave the first device's in the
+        // list, with its driver and DP table.
+        fetchBundle({ id: sel.value }, function(err, res) {
           btn.disabled = false;
           btn.textContent = orig;
           if (err) { alert('Could not collect the details: ' + (err.message || err)); return; }
 
-          var dev = (res.devices || []).filter(function(d) { return d.name === name; })[0]
-                 || (res.devices || [])[0] || {};
+          var dev = (res.devices || []).filter(function(d) { return d.selected; })[0];
+          if (!dev) {
+            alert('This device is no longer paired in the app. Refresh DP Debug and select it again.');
+            return;
+          }
           var params = {
             template:      'bug_report.yml',
             title:         '[Bug] ' + (dev.driver ? DRIVER_LABELS[dev.driver] || dev.driver : '') + ': ',
@@ -3204,6 +3213,10 @@
         var status  = document.getElementById(o.status);
         var out     = document.getElementById(o.result);
         if (!btn) return;
+        // Was die Vorschau gezeigt hat, liegt in der App unter diesem Token. Apply
+        // schickt nur das Token - angewendet wird genau die Vorschau, nicht eine neue
+        // Pruefung, die inzwischen anders ausfallen kann.
+        var vorschau = null;
 
         function reset() {
           btn.disabled = false;
@@ -3261,7 +3274,7 @@
           Homey.api('GET', url, function(err, res) {
             if (err) return fail(err);
             reset();
-            onResult((res && res.devices) || [], (res && res.skipped) || []);
+            onResult((res && res.devices) || [], (res && res.skipped) || [], res || {});
           });
         }
 
@@ -3273,7 +3286,9 @@
           show('');
           confirm.style.display = 'none';
 
-          run(o.url, 'Checking\u2026', function(devices, skipped) {
+          vorschau = null;
+          run(o.url, 'Checking\u2026', function(devices, skipped, res) {
+            vorschau = res.token || null;
             if (devices.length === 0) {
               status.textContent = o.nothingFound;
               status.style.color = '#888';
@@ -3288,6 +3303,7 @@
         });
 
         cancel.addEventListener('click', function() {
+          vorschau = null;
           status.textContent = 'Nothing was changed.';
           status.style.color = '#888';
           show('');
@@ -3295,16 +3311,26 @@
         });
 
         apply.addEventListener('click', function() {
+          // Ohne Vorschau nichts anwenden - auch nicht "neu pruefen und schreiben".
+          if (!vorschau) {
+            status.textContent = 'Run the check again first.';
+            status.style.color = '#b45309';
+            reset();
+            return;
+          }
+          var token = vorschau;
+          vorschau = null;
           apply.disabled = true;
           apply.innerHTML = 'Applying\u2026';
           btn.disabled = true;
 
-          run(o.url + (o.url.indexOf('?') === -1 ? '?' : '&') + 'dryRun=0', 'Applying\u2026',
+          run(o.url + (o.url.indexOf('?') === -1 ? '?' : '&') + 'dryRun=0&token=' + encodeURIComponent(token),
+            'Applying\u2026',
             function(devices, skipped) {
               var n = count(devices);
               if (n === 0) {
-                // The preview found something and the real run did not: the device or
-                // the specification changed in between. Say so rather than claim success.
+                // Everything the preview listed has changed since, or the device is gone:
+                // the reasons are in the list. Say so rather than claim success.
                 status.textContent = 'Nothing was changed \u2014 run the check again.';
                 status.style.color = '#b45309';
                 show(render(devices, skipped, ''));

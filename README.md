@@ -2896,11 +2896,14 @@ a type or an allowed range. Cloud Lookup does, which is why the two are used tog
 
 Five checks that compare your devices against what Tuya declares for them. Each one previews exactly
 what it would change, device by device, says why a device was left alone, and saves nothing until you
-confirm. All except **protocol versions** need Cloud Lookup credentials.
+confirm. Confirming applies exactly what the preview showed: nothing is checked again, and anything that
+has changed since — a setting edited by hand, a device that has started answering — is listed and left
+alone. A preview can be applied once, within 10 minutes. All except **protocol versions** need Cloud
+Lookup credentials.
 
 | Check | What it finds |
 |---|---|
-| **Check local keys** | A local key changes every time the device is reset or re-paired in the Tuya app, and the symptom is a device that never connects again. Compares the stored key against your account. Keys are shown shortened, never in full |
+| **Check local keys** | A local key changes every time the device is reset or re-paired in the Tuya app, and the symptom is a device that never connects again. Compares the stored key against your account. A device that is connected and delivering data on its current connection is left alone — its key demonstrably works. Keys are shown shortened, never in full |
 | **Check protocol versions** | The device is connected and answering on a different version than the settings say. Waits for the device to answer first, so it cannot save a version a device was merely stuck on |
 | **Check measurement scaling** | Readings that are 10× or 100× off, using the divisor Tuya declares rather than leaving you to work it out from the number |
 | **Update pickers on existing devices** | Mode and fan-speed lists that were seeded from whatever the device happened to report at pairing time, and numeric ranges with their decimal place and step. Never touches DP numbers — and reads every list from the DP your device is set to, so a mapping you corrected by hand gets that DP's list, not the one its code name would suggest. A DP set to `0` gets none |
