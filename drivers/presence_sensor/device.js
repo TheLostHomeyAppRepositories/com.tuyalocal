@@ -228,11 +228,19 @@ class PresenceSensorDevice extends BaseTuyaDevice {
           const roh = String(value).toLowerCase();
           const present = ANWESEND.has(roh)
             || (!ABWESEND.has(roh) && (value === true || Number(value) > 0));
+          // Nur bei einem Wechsel. Nach jedem Neuverbinden ist _lastDps leer, die erste
+          // Abfrage meldet den Stand noch einmal, und die Karten feuerten ohne Vergleich:
+          // nachts in einem belegten Zimmer startete "Anwesenheit erkannt" nach jedem
+          // Neuverbinden und jedem App-Update. Der erste Wert ueberhaupt ist ein Stand,
+          // kein Ereignis.
+          const vorher = this.getCapabilityValue('alarm_motion');
           await this.setCapabilityValue('alarm_motion', present).catch(() => {});
-          if (present) {
-            this._triggerPresenceDetected.trigger(this, {}).catch(() => {});
-          } else {
-            this._triggerPresenceCleared.trigger(this, {}).catch(() => {});
+          if (vorher !== null && vorher !== present) {
+            if (present) {
+              this._triggerPresenceDetected.trigger(this, {}).catch(() => {});
+            } else {
+              this._triggerPresenceCleared.trigger(this, {}).catch(() => {});
+            }
           }
           break;
         }

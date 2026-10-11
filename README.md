@@ -2290,7 +2290,7 @@ fan: sub-capabilities (`onoff.fan`, `dim.fan`) and app-defined capabilities (`fa
 
 | Action | Notes |
 |---|---|
-| Feed [[portions]] portion(s) now | Dispenses 1–50 portions immediately |
+| Feed [[portions]] portion(s) now | Dispenses 1–50 portions immediately, within **Portions — minimum/maximum** of the device settings; outside them the flow stops with a message saying which setting to change |
 | Refresh pet feeder values | Triggers an immediate GET request |
 | Set feeder child lock | on / off — requires `dp_child_lock` > 0 |
 | Set feeder indicator light | on / off — requires `dp_indicator_light` > 0 |
@@ -2542,9 +2542,9 @@ fan: sub-capabilities (`onoff.fan`, `dim.fan`) and app-defined capabilities (`fa
 
 | Trigger | Flow tokens |
 |---|---|
-| Doorbell pressed | — |
+| Doorbell pressed | — once per press the panel reports; a status reply that repeats the last value is not a press |
 | Lock state changed | `locked` (boolean) |
-| A specific data point changed | `value`, `previous_value`, `code` — pick the DP number in the card |
+| A specific data point changed | `value`, `previous_value`, `code` — pick the DP number in the card. Fires when the value differs from the last one, not again after a reconnect or app restart |
 | Access panel connected | — |
 | Access panel disconnected | — |
 | Access panel data point changed | `dp` (string), `value` (string) |

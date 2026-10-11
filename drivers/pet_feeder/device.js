@@ -129,11 +129,7 @@ class PetFeederDevice extends BaseTuyaDevice {
         // an enum — values are strings; send as Number to the device.
         register('feed_portions', async (value) => {
           await this._set(this.getSetting('dp_portions'), Number(value));
-          clearTimeout(this._portionsResetTimer);
-          this._portionsResetTimer = setTimeout(() => {
-            const resetTo = String(this.getSetting('portions_min') ?? 1);
-            this.setCapabilityValue('feed_portions', resetTo).catch(() => {});
-          }, 3000);
+          this._portionenZuruecksetzen();
         });
       } else {
         register(entry.capability, async (value) => {
@@ -327,6 +323,52 @@ class PetFeederDevice extends BaseTuyaDevice {
   // â”€â”€ Homey lifecycle â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   // â”€â”€ Portions picker range â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  /** Die Auswahl nach einer Fuetterung zurueck auf portions_min, nach 3 s. */
+  _portionenZuruecksetzen() {
+    clearTimeout(this._portionsResetTimer);
+    this._portionsResetTimer = setTimeout(() => {
+      const resetTo = String(this.getSetting('portions_min') ?? 1);
+      this.setCapabilityValue('feed_portions', resetTo).catch(() => {});
+    }, 3000);
+  }
+
+  /**
+   * "Jetzt fuettern" aus der Flow-Karte.
+   *
+   * Die Karte erlaubt 1 bis 50 Portionen, die Auswahl der Kachel nur portions_min bis
+   * portions_max (Vorgabe 1 bis 12). Die Karte setzte zuerst die Kachel und loeste dann
+   * deren Listener aus; einen Wert ausserhalb der Auswahl lehnte Homey ab, bevor etwas ans
+   * Geraet ging, und der Flow scheiterte mit einer Meldung, die nichts erklaerte. Jetzt wird
+   * gegen die Einstellungen geprueft - mit einer Meldung, die sagt, was zu tun ist - und
+   * direkt gesendet. Die Kachel zeigt den Wert nur, wenn er in ihrer Auswahl steht.
+   *
+   * @param {number} portionen
+   */
+  async feedNow(portionen) {
+    const n   = Math.round(Number(portionen));
+    const min = Number(this.getSetting('portions_min') ?? 1);
+    const max = Number(this.getSetting('portions_max') ?? 12);
+    if (!Number.isFinite(n) || n < 1) throw new Error(`"${portionen}" is not a number of portions`);
+    if (n > max) {
+      throw new Error(`${n} portions is above the maximum set for this feeder (${max}). If it can `
+        + 'dispense more, raise "Portions \u2014 maximum" in the device settings.');
+    }
+    if (n < min) {
+      throw new Error(`${n} portions is below the minimum set for this feeder (${min}) - see `
+        + '"Portions \u2014 minimum" in the device settings.');
+    }
+    const dp = this.getSetting('dp_portions');
+    if (!(dp > 0)) {
+      throw new Error('No data point set for portions (dp_portions is 0) - set it in the device settings');
+    }
+    await this._set(dp, n);
+    if (this.hasCapability('feed_portions')) {
+      await this.setCapabilityValue('feed_portions', String(n)).catch(() => {});
+      this._portionenZuruecksetzen();
+    }
+    return true;
+  }
+
   // Builds enum values from portions_min..portions_max so the picker only shows
   // the entries that the device actually supports.
 

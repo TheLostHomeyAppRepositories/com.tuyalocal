@@ -58,6 +58,8 @@ class IrBlasterDevice extends BaseTuyaDevice {
     this._lernTimer = null;
 
     await this._baseInit();
+    // Der zuletzt gesehene Lerncode, aus dem Geraetespeicher - siehe _handleDps.
+    this._letzterCode = String(this._lastDps?.[String(this.getSetting('dp_ir_study'))] || '').trim();
     await this._syncOptionalCapabilities(OPTIONAL_CAPABILITIES);
 
     this._triggerDeviceConnected    = this.homey.flow.getDeviceTriggerCard('ir_device_connected');
@@ -275,7 +277,7 @@ class IrBlasterDevice extends BaseTuyaDevice {
 
   // ── DPS handling ───────────────────────────────────────────────────────────
 
-  async _handleDps(dps) {
+  async _handleDps(dps, meta = {}) {
     const settings = this.getSettings();
     let changed = false;
 
@@ -286,12 +288,23 @@ class IrBlasterDevice extends BaseTuyaDevice {
       // anlernt, schickt zweimal denselben Code, und die Pruefung auf "hat sich
       // geaendert" wuerde den zweiten verschlucken - also genau den Fall, in dem
       // jemand gerade wartet.
+      //
+      // Aber nur, was der Blaster von sich aus meldet. Die Antwort auf eine Abfrage
+      // wiederholt den zuletzt gelernten Code - jede wurde als neuer "code_N" gespeichert,
+      // bis zur Grenze von hundert, und auch beim echten Lernen kam der Code 500 ms spaeter
+      // mit der Folgeabfrage ein zweites Mal. Waehrend wir selbst lernen, gilt auch eine
+      // Antwort, aber nur mit einem anderen Code als dem zuletzt gesehenen: sonst wuerde
+      // ausgerechnet der alte unter dem neuen Namen gespeichert.
       if (settings.dp_ir_study > 0 && dp === settings.dp_ir_study) {
         const code = String(rawValue || '').trim();
         if (code) {
           this._lastDps[dpStr] = rawValue;
-          changed = true;
-          await this._codeAngekommen(code);
+          const neu = meta.isPush || (this._lernTimer !== null && code !== this._letzterCode);
+          this._letzterCode = code;
+          if (neu) {
+            changed = true;
+            await this._codeAngekommen(code);
+          }
         }
         continue;
       }

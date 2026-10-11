@@ -26,6 +26,10 @@ class AccessPanelDevice extends BaseTuyaDevice {
     this.log('Access panel initialized:', this.getName());
 
     await this._baseInit();
+    // Der letzte Wert je DP, fuer previous_value und um Wiederholungen zu erkennen.
+    // Vorbelegt aus dem Geraetespeicher, sonst haelt die erste Abfrage nach einem
+    // Neustart jeden Wert fuer neu.
+    this._lastRaw = { ...(this._lastDps || {}) };
     await this._migrateCapabilities([]);
     await this._syncOptionalCapabilities(OPTIONAL_CAPABILITIES);
     await this._syncEnumOptions('doorbell_volume', this.getSetting('volume_values'));
@@ -141,43 +145,52 @@ class AccessPanelDevice extends BaseTuyaDevice {
 
   // ── DPS handling ───────────────────────────────────────────────────────────
 
-  async _handleDps(dps) {
+  async _handleDps(dps, meta = {}) {
     const settings = this.getSettings();
     let   changed  = false;
 
     for (const [dpStr, value] of Object.entries(dps)) {
-      if (this._lastDps[dpStr] === value) continue;
+      const dp = parseInt(dpStr, 10);
+
+      // Die Klingel ist ein Ereignis, und ein Ereignis meldet das Panel von sich aus.
+      // Die Antwort auf eine Abfrage wiederholt nur den letzten Stand - auch die, die 500 ms
+      // nach jedem Push folgt -, und das Klingeln feuerte deshalb doppelt, bei einer Firmware,
+      // die den Wert stehen laesst, sogar bei jeder Abfrage. Ein Push dagegen geht auch mit
+      // demselben Wert durch: zweimal klingeln sind zwei Ereignisse.
+      const istKlingel = settings.dp_doorbell > 0 && dp === settings.dp_doorbell;
+      if (istKlingel && !meta.isPush) { this._lastDps[dpStr] = value; continue; }
+      if (!istKlingel && this._lastDps[dpStr] === value) continue;
       this._lastDps[dpStr] = value;
       changed = true;
-
-      const dp = parseInt(dpStr, 10);
 
       const previous = this._lastRaw ? this._lastRaw[dpStr] : undefined;
       this._lastRaw = this._lastRaw || {};
       this._lastRaw[dpStr] = value;
 
-      this._triggerDpChanged
-        .trigger(this, { dp: dpStr, value: String(value) })
-        .catch(() => {});
+      // Nur bei einem anderen Wert als zuletzt. Nach jedem Neuverbinden ist _lastDps leer,
+      // und die erste Abfrage brachte jeden DP noch einmal - ein Flow "Anna hat
+      // aufgeschlossen" lief so bei jedem Neuverbinden, mit value gleich previous_value.
+      if (value !== previous) {
+        this._triggerDpChanged
+          .trigger(this, { dp: dpStr, value: String(value) })
+          .catch(() => {});
 
-      // The per-data-point trigger, filtered in the driver by the dp in this state.
-      this._triggerDpValue
-        .trigger(this, {
-          value:          String(value),
-          previous_value: previous === undefined ? '' : String(previous),
-          code:           this.dpCodes()[dp] || '',
-        }, { dp })
-        .catch(() => {});
+        // The per-data-point trigger, filtered in the driver by the dp in this state.
+        this._triggerDpValue
+          .trigger(this, {
+            value:          String(value),
+            previous_value: previous === undefined ? '' : String(previous),
+            code:           this.dpCodes()[dp] || '',
+          }, { dp })
+          .catch(() => {});
+      }
 
       // ── Doorbell ──────────────────────────────────────────────────────────
-      // An event, not a state: two presses in a row carry the same value, so the
-      // entry is dropped from the de-duplication cache to let the second one
-      // through. The same approach the doorbell driver uses.
-      if (settings.dp_doorbell > 0 && dp === settings.dp_doorbell) {
+      // An event, not a state - only reached for a push, see the top of the loop.
+      if (istKlingel) {
         if (value === true || value === 'true' || value === 1) {
           this._triggerDoorbell.trigger(this).catch(() => {});
         }
-        delete this._lastDps[dpStr];
         continue;
       }
 

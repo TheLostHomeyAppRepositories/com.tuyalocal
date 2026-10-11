@@ -32,7 +32,12 @@ class WallSwitchDevice extends BaseTuyaDevice {
     // (unlike getCapabilityValue which can be pre-set by Homey SDK).
     this._lastGangState = {};
     for (const gang of GANG_CAPS) {
-      const val = this.getCapabilityValue(gang.capability);
+      // Die Faehigkeit, die diesen Kanal gerade zeigt. Im Sammelmodus ist "onoff" der
+      // Sammelwert ("irgendein Kanal an"), und Kanal 1 liegt auf onoff.1. Aus "onoff"
+      // gelesen, stand Kanal 1 nach jedem Neustart auf dem Sammelwert, und die erste
+      // Abfrage meldete ein "Kanal 1 geaendert", das es nicht gab.
+      const cap = this._capForGang(gang.gang);
+      const val = this.hasCapability(cap) ? this.getCapabilityValue(cap) : null;
       if (val !== null) this._lastGangState[gang.gang] = val;
     }
 

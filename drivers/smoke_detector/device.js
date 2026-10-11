@@ -132,7 +132,7 @@ class SmokeDetectorDevice extends BaseTuyaDevice {
 
   // ── DPS handling ───────────────────────────────────────────────────────────
 
-  async _handleDps(dps) {
+  async _handleDps(dps, meta = {}) {
     const settings = this.getSettings();
     let changed = false;
 
@@ -212,7 +212,14 @@ class SmokeDetectorDevice extends BaseTuyaDevice {
           }
           // "checking" ist der Zwischenstand, kein Ergebnis - darauf einen Flow zu
           // starten hiesse, jede Pruefung zweimal zu melden.
-          if (wort !== 'checking') {
+          //
+          // Und nur ein Ergebnis, das gerade entstanden ist: vom Melder von sich aus
+          // gemeldet, oder direkt nach "checking". Die Antwort auf eine Abfrage nach dem
+          // Neuverbinden wiederholt das letzte Ergebnis, und die Karte meldete nach jedem
+          // Neuverbinden "Selbsttest abgeschlossen, bestanden".
+          const vorher = this._letzterSelbsttest;
+          this._letzterSelbsttest = wort;
+          if (wort !== 'checking' && (meta.isPush || vorher === 'checking')) {
             this._triggerSelfTestFinished
               .trigger(this, { result: String(rawValue), passed: !fehler })
               .catch(() => {});

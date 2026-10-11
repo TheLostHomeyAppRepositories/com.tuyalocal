@@ -259,6 +259,10 @@ class HeatPumpDevice extends BaseTuyaDevice {
   async _aktuellerBlock(dp) {
     if (this._sollBlock) return this._sollBlock;
     const kommt = this._naechsterBlock(BLOCK_ANFORDERN_MS);
+    // Die angeforderte Antwort muss durch die Gleichheitssperre: stand der Block schon in
+    // _lastDps - als unbekannter DP oder mit einem anderen Feld -, wurde genau die Antwort
+    // verworfen, auf die hier gewartet wird, und der Fehler unten sagte "nicht gemeldet".
+    delete this._lastDps[String(dp)];
     this._conn?.refresh([dp]).catch(() => {});
     this._conn?.get().catch(() => {});
     const ausCloud = this._blockAusCloud(dp);
@@ -606,8 +610,19 @@ class HeatPumpDevice extends BaseTuyaDevice {
       await this._syncTempRange();
     }
     // The cached block belongs to the old DP or field; the next report brings the new.
+    //
+    // Und dieser Bericht muss auch kommen: der Block stand meist schon in _lastDps, und
+    // die Gleichheitssperre verwarf ihn, bis er sich am Geraet aenderte - nach dem
+    // Einrichten zeigte die Kachel keinen Sollwert. Also vergessen und gleich anfragen;
+    // getSetting liefert hier schon die neuen Werte.
     if (changedKeys.includes('dp_target_temp') || changedKeys.includes('target_temp_field')) {
       this._sollBlock = null;
+      const dp = Number(this.getSetting('dp_target_temp'));
+      if (dp > 0) {
+        delete this._lastDps[String(dp)];
+        this._conn?.refresh([dp]).catch(() => {});
+        this._conn?.get().catch(() => {});
+      }
     }
     // Rebuild mode picker when either the DP assignment or the value list changes.
     if (changedKeys.includes('mode_values') || changedKeys.includes('dp_mode')) {

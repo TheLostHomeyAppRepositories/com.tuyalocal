@@ -72,12 +72,9 @@ class PetFeederDriver extends Homey.Driver {
     // ── Actions ──────────────────────────────────────────────────────────────
     this.homey.flow.getActionCard('feeder_feed_now')
       .registerRunListener(async (args) => {
-        // args.portions comes from the flow card as a number; feed_portions is an
-        // enum capability and therefore requires a string value.
-        const portionsNum = args.portions ?? Number(args.device.getCapabilityValue('feed_portions')) ?? 1;
-        const portionsStr = String(portionsNum);
-        await args.device.setCapabilityValue('feed_portions', portionsStr);
-        return args.device.triggerCapabilityListener('feed_portions', portionsStr);
+        // Geprueft gegen portions_min/portions_max und gesendet im Geraet - siehe feedNow.
+        // Der Umweg ueber die Kachel scheiterte an jedem Wert ausserhalb ihrer Auswahl.
+        return args.device.feedNow(args.portions ?? (Number(args.device.getCapabilityValue('feed_portions')) || 1));
       });
 
     // Diese Capabilities sind von der App definiert, und dafuer erzeugt Homey

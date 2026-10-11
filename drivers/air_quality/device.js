@@ -135,16 +135,28 @@ class AirQualityDevice extends BaseTuyaDevice {
       .filter((e) => e.art === 'enum')
       .map((e) => [e.capability, this.homey.flow.getDeviceTriggerCard(e.karte)]));
 
+    this._registerSchalterListener();
+
+    await this._connect();
+  }
+
+  /**
+   * Die Listener fuer Summer, Lautstaerke und Hintergrundlicht. Idempotent, denn auch
+   * onSettings ruft sie auf, wenn eine dieser Kacheln eben dazugekommen ist - vorher nur
+   * onInit, und eine spaeter per DP-Einstellung hinzugefuegte Kachel blieb bis zum
+   * Neustart ohne Listener. Homey nimmt dieselbe Faehigkeit nicht zweimal an.
+   */
+  _registerSchalterListener() {
+    if (!this._schalterHoerer) this._schalterHoerer = new Set();
     for (const { settingKey, capability, art } of SCHALTER) {
-      if (!this.hasCapability(capability)) continue;
+      if (!this.hasCapability(capability) || this._schalterHoerer.has(capability)) continue;
+      this._schalterHoerer.add(capability);
       this.registerCapabilityListener(capability, async (value) => {
         const dp = this.getSetting(settingKey);
         if (!dp || dp <= 0) throw new Error(`No data point configured for ${capability}.`);
         await this._set(dp, art === 'bool' ? value === true : String(value));
       });
     }
-
-    await this._connect();
   }
 
   // ── Value readers ─────────────────────────────────────────────────────────
@@ -401,6 +413,10 @@ class AirQualityDevice extends BaseTuyaDevice {
     if (changedKeys.includes('reconnect_interval')) this._startAutoReconnect();
     if (this._touchesOptional(changedKeys, OPTIONAL_CAPABILITIES)) {
       await this._syncOptionalCapabilities(OPTIONAL_CAPABILITIES);
+      // Eine eben dazugekommene Kachel braucht ihren Listener und ihre Werteliste.
+      this._registerSchalterListener();
+      await this._syncEnumOptions('alarm_volume',    this.getSetting('volume_values'));
+      await this._syncEnumOptions('backlight_level', this.getSetting('backlight_values'));
     }
     if (changedKeys.includes('volume_values')) {
       await this._syncEnumOptions('alarm_volume', this.getSetting('volume_values'));
