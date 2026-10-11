@@ -252,7 +252,15 @@
       });
 
       // rowDefs: [rowKey, settingKey, initialDp, label]
-      var gd = Homey.__('pair.list_devices.garage_door') || {};
+      // Je Beschriftung ein eigener Schluessel. Was Homey.__ fuer einen Schluessel
+      // liefert, der auf eine ganze Gruppe zeigt, ist nicht festgelegt - lieferte es
+      // nicht die Gruppe, fiel jede Zeile still auf Englisch zurueck.
+      var gd = {
+        doorContact: Homey.__('pair.list_devices.garage_door.doorContact'),
+        doorControl: Homey.__('pair.list_devices.garage_door.doorControl'),
+        relaySwitch: Homey.__('pair.list_devices.garage_door.relaySwitch'),
+        doorState:   Homey.__('pair.list_devices.garage_door.doorState'),
+      };
       var rowDefs = [
         ['contact',   'dp_door_contact',  s.dp_door_contact  != null ? s.dp_door_contact  : 3,  gd.doorContact  || 'Door Contact Sensor  (DP 3, bool — true=closed)'],
         ['control',   'dp_door_control',  s.dp_door_control  != null ? s.dp_door_control  : 6,  gd.doorControl  || 'Open/Close Command  (DP 6, enum open|close)'],

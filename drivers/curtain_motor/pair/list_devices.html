@@ -252,7 +252,15 @@
       });
 
       // rowDefs: [rowKey, settingKey, initialDp, label]
-      var cm = Homey.__('pair.list_devices.curtain_motor') || {};
+      // Je Beschriftung ein eigener Schluessel. Was Homey.__ fuer einen Schluessel
+      // liefert, der auf eine ganze Gruppe zeigt, ist nicht festgelegt - lieferte es
+      // nicht die Gruppe, fiel jede Zeile still auf Englisch zurueck.
+      var cm = {
+        control:        Homey.__('pair.list_devices.curtain_motor.control'),
+        percentControl: Homey.__('pair.list_devices.curtain_motor.percentControl'),
+        workState:      Homey.__('pair.list_devices.curtain_motor.workState'),
+        fault:          Homey.__('pair.list_devices.curtain_motor.fault'),
+      };
       var rowDefs = [
         ['control',   'dp_control',         s.dp_control         != null ? s.dp_control         : 1,  cm.control         || 'Control  (DP 1, enum open|stop|close)'],
         ['position',  'dp_percent_control', s.dp_percent_control != null ? s.dp_percent_control : 2,  cm.percentControl  || 'Position %  (DP 2, integer 0–100)'],

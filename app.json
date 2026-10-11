@@ -14650,8 +14650,8 @@
                 "de": "Verbindungsbeginn aufzeichnen"
               },
               "hint": {
-                "en": "Writes every message exchanged with the device during the first 20 seconds of each connection to the log. For tracking down a device that does something when the app connects to it. Takes effect at the next connection — restart the app, or reconnect the device with its flow action. Leave off otherwise: it is verbose.",
-                "de": "Schreibt jede Nachricht, die in den ersten 20 Sekunden einer Verbindung mit dem Gerät ausgetauscht wird, ins Log. Zum Aufspüren eines Geräts, das etwas tut, sobald die App sich verbindet. Greift bei der nächsten Verbindung — die App neu starten oder das Gerät mit seiner Flow-Aktion neu verbinden. Sonst ausgeschaltet lassen: es ist ausführlich."
+                "en": "Writes every message exchanged with the device during the first 20 seconds of each connection to the log. For tracking down a device that does something when the app connects to it. Saving it reconnects the device, so the trace starts right away. Leave off otherwise: it is verbose.",
+                "de": "Schreibt jede Nachricht, die in den ersten 20 Sekunden einer Verbindung mit dem Gerät ausgetauscht wird, ins Log. Zum Aufspüren eines Geräts, das etwas tut, sobald die App sich verbindet. Beim Speichern verbindet das Gerät neu, die Aufzeichnung beginnt also sofort. Sonst ausgeschaltet lassen: es ist ausführlich."
               }
             },
             {
@@ -14663,8 +14663,8 @@
                 "de": "Alternatives Befehlsformat"
               },
               "hint": {
-                "en": "For a device that acknowledges commands but does not carry them out, while it reports its state normally. Sends commands the way tinytuya and localtuya do: with the device ID in the uid field and the time as text, as the status request already does. Protocol 3.1 to 3.3 only - 3.4 and 3.5 use a different format and are not affected. Takes effect at the next connection. Leave off otherwise.",
-                "de": "Für ein Gerät, das Befehle quittiert, aber nicht ausführt, während es seinen Zustand normal meldet. Sendet Befehle so wie tinytuya und localtuya: mit der Geräte-ID im Feld uid und der Zeit als Text, so wie es die Statusabfrage schon tut. Nur Protokoll 3.1 bis 3.3 - 3.4 und 3.5 haben ein anderes Format und sind nicht betroffen. Greift bei der nächsten Verbindung. Sonst ausgeschaltet lassen."
+                "en": "For a device that acknowledges commands but does not carry them out, while it reports its state normally. Sends commands the way tinytuya and localtuya do: with the device ID in the uid field and the time as text, as the status request already does. Protocol 3.1 to 3.3 only - 3.4 and 3.5 use a different format and are not affected. Saving it reconnects the device, so it applies at once. Leave off otherwise.",
+                "de": "Für ein Gerät, das Befehle quittiert, aber nicht ausführt, während es seinen Zustand normal meldet. Sendet Befehle so wie tinytuya und localtuya: mit der Geräte-ID im Feld uid und der Zeit als Text, so wie es die Statusabfrage schon tut. Nur Protokoll 3.1 bis 3.3 - 3.4 und 3.5 haben ein anderes Format und sind nicht betroffen. Beim Speichern verbindet das Gerät neu, es gilt also sofort. Sonst ausgeschaltet lassen."
               }
             }
           ]
@@ -15225,8 +15225,8 @@
                 "de": "Verbindungsbeginn aufzeichnen"
               },
               "hint": {
-                "en": "Writes every message exchanged with the device during the first 20 seconds of each connection to the log. For tracking down a device that does something when the app connects to it. Takes effect at the next connection — restart the app, or reconnect the device with its flow action. Leave off otherwise: it is verbose.",
-                "de": "Schreibt jede Nachricht, die in den ersten 20 Sekunden einer Verbindung mit dem Gerät ausgetauscht wird, ins Log. Zum Aufspüren eines Geräts, das etwas tut, sobald die App sich verbindet. Greift bei der nächsten Verbindung — die App neu starten oder das Gerät mit seiner Flow-Aktion neu verbinden. Sonst ausgeschaltet lassen: es ist ausführlich."
+                "en": "Writes every message exchanged with the device during the first 20 seconds of each connection to the log. For tracking down a device that does something when the app connects to it. Saving it reconnects the device, so the trace starts right away. Leave off otherwise: it is verbose.",
+                "de": "Schreibt jede Nachricht, die in den ersten 20 Sekunden einer Verbindung mit dem Gerät ausgetauscht wird, ins Log. Zum Aufspüren eines Geräts, das etwas tut, sobald die App sich verbindet. Beim Speichern verbindet das Gerät neu, die Aufzeichnung beginnt also sofort. Sonst ausgeschaltet lassen: es ist ausführlich."
               }
             },
             {
@@ -15238,8 +15238,8 @@
                 "de": "Alternatives Befehlsformat"
               },
               "hint": {
-                "en": "For a device that acknowledges commands but does not carry them out, while it reports its state normally. Sends commands the way tinytuya and localtuya do: with the device ID in the uid field and the time as text, as the status request already does. Protocol 3.1 to 3.3 only - 3.4 and 3.5 use a different format and are not affected. Takes effect at the next connection. Leave off otherwise.",
-                "de": "Für ein Gerät, das Befehle quittiert, aber nicht ausführt, während es seinen Zustand normal meldet. Sendet Befehle so wie tinytuya und localtuya: mit der Geräte-ID im Feld uid und der Zeit als Text, so wie es die Statusabfrage schon tut. Nur Protokoll 3.1 bis 3.3 - 3.4 und 3.5 haben ein anderes Format und sind nicht betroffen. Greift bei der nächsten Verbindung. Sonst ausgeschaltet lassen."
+                "en": "For a device that acknowledges commands but does not carry them out, while it reports its state normally. Sends commands the way tinytuya and localtuya do: with the device ID in the uid field and the time as text, as the status request already does. Protocol 3.1 to 3.3 only - 3.4 and 3.5 use a different format and are not affected. Saving it reconnects the device, so it applies at once. Leave off otherwise.",
+                "de": "Für ein Gerät, das Befehle quittiert, aber nicht ausführt, während es seinen Zustand normal meldet. Sendet Befehle so wie tinytuya und localtuya: mit der Geräte-ID im Feld uid und der Zeit als Text, so wie es die Statusabfrage schon tut. Nur Protokoll 3.1 bis 3.3 - 3.4 und 3.5 haben ein anderes Format und sind nicht betroffen. Beim Speichern verbindet das Gerät neu, es gilt also sofort. Sonst ausgeschaltet lassen."
               }
             }
           ]
@@ -15975,8 +15975,8 @@
                 "de": "Verbindungsbeginn aufzeichnen"
               },
               "hint": {
-                "en": "Writes every message exchanged with the device during the first 20 seconds of each connection to the log. For tracking down a device that does something when the app connects to it. Takes effect at the next connection — restart the app, or reconnect the device with its flow action. Leave off otherwise: it is verbose.",
-                "de": "Schreibt jede Nachricht, die in den ersten 20 Sekunden einer Verbindung mit dem Gerät ausgetauscht wird, ins Log. Zum Aufspüren eines Geräts, das etwas tut, sobald die App sich verbindet. Greift bei der nächsten Verbindung — die App neu starten oder das Gerät mit seiner Flow-Aktion neu verbinden. Sonst ausgeschaltet lassen: es ist ausführlich."
+                "en": "Writes every message exchanged with the device during the first 20 seconds of each connection to the log. For tracking down a device that does something when the app connects to it. Saving it reconnects the device, so the trace starts right away. Leave off otherwise: it is verbose.",
+                "de": "Schreibt jede Nachricht, die in den ersten 20 Sekunden einer Verbindung mit dem Gerät ausgetauscht wird, ins Log. Zum Aufspüren eines Geräts, das etwas tut, sobald die App sich verbindet. Beim Speichern verbindet das Gerät neu, die Aufzeichnung beginnt also sofort. Sonst ausgeschaltet lassen: es ist ausführlich."
               }
             },
             {
@@ -15988,8 +15988,8 @@
                 "de": "Alternatives Befehlsformat"
               },
               "hint": {
-                "en": "For a device that acknowledges commands but does not carry them out, while it reports its state normally. Sends commands the way tinytuya and localtuya do: with the device ID in the uid field and the time as text, as the status request already does. Protocol 3.1 to 3.3 only - 3.4 and 3.5 use a different format and are not affected. Takes effect at the next connection. Leave off otherwise.",
-                "de": "Für ein Gerät, das Befehle quittiert, aber nicht ausführt, während es seinen Zustand normal meldet. Sendet Befehle so wie tinytuya und localtuya: mit der Geräte-ID im Feld uid und der Zeit als Text, so wie es die Statusabfrage schon tut. Nur Protokoll 3.1 bis 3.3 - 3.4 und 3.5 haben ein anderes Format und sind nicht betroffen. Greift bei der nächsten Verbindung. Sonst ausgeschaltet lassen."
+                "en": "For a device that acknowledges commands but does not carry them out, while it reports its state normally. Sends commands the way tinytuya and localtuya do: with the device ID in the uid field and the time as text, as the status request already does. Protocol 3.1 to 3.3 only - 3.4 and 3.5 use a different format and are not affected. Saving it reconnects the device, so it applies at once. Leave off otherwise.",
+                "de": "Für ein Gerät, das Befehle quittiert, aber nicht ausführt, während es seinen Zustand normal meldet. Sendet Befehle so wie tinytuya und localtuya: mit der Geräte-ID im Feld uid und der Zeit als Text, so wie es die Statusabfrage schon tut. Nur Protokoll 3.1 bis 3.3 - 3.4 und 3.5 haben ein anderes Format und sind nicht betroffen. Beim Speichern verbindet das Gerät neu, es gilt also sofort. Sonst ausgeschaltet lassen."
               }
             }
           ]
@@ -16546,8 +16546,8 @@
                 "de": "Verbindungsbeginn aufzeichnen"
               },
               "hint": {
-                "en": "Writes every message exchanged with the device during the first 20 seconds of each connection to the log. For tracking down a device that does something when the app connects to it. Takes effect at the next connection — restart the app, or reconnect the device with its flow action. Leave off otherwise: it is verbose.",
-                "de": "Schreibt jede Nachricht, die in den ersten 20 Sekunden einer Verbindung mit dem Gerät ausgetauscht wird, ins Log. Zum Aufspüren eines Geräts, das etwas tut, sobald die App sich verbindet. Greift bei der nächsten Verbindung — die App neu starten oder das Gerät mit seiner Flow-Aktion neu verbinden. Sonst ausgeschaltet lassen: es ist ausführlich."
+                "en": "Writes every message exchanged with the device during the first 20 seconds of each connection to the log. For tracking down a device that does something when the app connects to it. Saving it reconnects the device, so the trace starts right away. Leave off otherwise: it is verbose.",
+                "de": "Schreibt jede Nachricht, die in den ersten 20 Sekunden einer Verbindung mit dem Gerät ausgetauscht wird, ins Log. Zum Aufspüren eines Geräts, das etwas tut, sobald die App sich verbindet. Beim Speichern verbindet das Gerät neu, die Aufzeichnung beginnt also sofort. Sonst ausgeschaltet lassen: es ist ausführlich."
               }
             },
             {
@@ -16559,8 +16559,8 @@
                 "de": "Alternatives Befehlsformat"
               },
               "hint": {
-                "en": "For a device that acknowledges commands but does not carry them out, while it reports its state normally. Sends commands the way tinytuya and localtuya do: with the device ID in the uid field and the time as text, as the status request already does. Protocol 3.1 to 3.3 only - 3.4 and 3.5 use a different format and are not affected. Takes effect at the next connection. Leave off otherwise.",
-                "de": "Für ein Gerät, das Befehle quittiert, aber nicht ausführt, während es seinen Zustand normal meldet. Sendet Befehle so wie tinytuya und localtuya: mit der Geräte-ID im Feld uid und der Zeit als Text, so wie es die Statusabfrage schon tut. Nur Protokoll 3.1 bis 3.3 - 3.4 und 3.5 haben ein anderes Format und sind nicht betroffen. Greift bei der nächsten Verbindung. Sonst ausgeschaltet lassen."
+                "en": "For a device that acknowledges commands but does not carry them out, while it reports its state normally. Sends commands the way tinytuya and localtuya do: with the device ID in the uid field and the time as text, as the status request already does. Protocol 3.1 to 3.3 only - 3.4 and 3.5 use a different format and are not affected. Saving it reconnects the device, so it applies at once. Leave off otherwise.",
+                "de": "Für ein Gerät, das Befehle quittiert, aber nicht ausführt, während es seinen Zustand normal meldet. Sendet Befehle so wie tinytuya und localtuya: mit der Geräte-ID im Feld uid und der Zeit als Text, so wie es die Statusabfrage schon tut. Nur Protokoll 3.1 bis 3.3 - 3.4 und 3.5 haben ein anderes Format und sind nicht betroffen. Beim Speichern verbindet das Gerät neu, es gilt also sofort. Sonst ausgeschaltet lassen."
               }
             }
           ]
@@ -17107,8 +17107,8 @@
                 "de": "Verbindungsbeginn aufzeichnen"
               },
               "hint": {
-                "en": "Writes every message exchanged with the device during the first 20 seconds of each connection to the log. For tracking down a device that does something when the app connects to it. Takes effect at the next connection — restart the app, or reconnect the device with its flow action. Leave off otherwise: it is verbose.",
-                "de": "Schreibt jede Nachricht, die in den ersten 20 Sekunden einer Verbindung mit dem Gerät ausgetauscht wird, ins Log. Zum Aufspüren eines Geräts, das etwas tut, sobald die App sich verbindet. Greift bei der nächsten Verbindung — die App neu starten oder das Gerät mit seiner Flow-Aktion neu verbinden. Sonst ausgeschaltet lassen: es ist ausführlich."
+                "en": "Writes every message exchanged with the device during the first 20 seconds of each connection to the log. For tracking down a device that does something when the app connects to it. Saving it reconnects the device, so the trace starts right away. Leave off otherwise: it is verbose.",
+                "de": "Schreibt jede Nachricht, die in den ersten 20 Sekunden einer Verbindung mit dem Gerät ausgetauscht wird, ins Log. Zum Aufspüren eines Geräts, das etwas tut, sobald die App sich verbindet. Beim Speichern verbindet das Gerät neu, die Aufzeichnung beginnt also sofort. Sonst ausgeschaltet lassen: es ist ausführlich."
               }
             },
             {
@@ -17120,8 +17120,8 @@
                 "de": "Alternatives Befehlsformat"
               },
               "hint": {
-                "en": "For a device that acknowledges commands but does not carry them out, while it reports its state normally. Sends commands the way tinytuya and localtuya do: with the device ID in the uid field and the time as text, as the status request already does. Protocol 3.1 to 3.3 only - 3.4 and 3.5 use a different format and are not affected. Takes effect at the next connection. Leave off otherwise.",
-                "de": "Für ein Gerät, das Befehle quittiert, aber nicht ausführt, während es seinen Zustand normal meldet. Sendet Befehle so wie tinytuya und localtuya: mit der Geräte-ID im Feld uid und der Zeit als Text, so wie es die Statusabfrage schon tut. Nur Protokoll 3.1 bis 3.3 - 3.4 und 3.5 haben ein anderes Format und sind nicht betroffen. Greift bei der nächsten Verbindung. Sonst ausgeschaltet lassen."
+                "en": "For a device that acknowledges commands but does not carry them out, while it reports its state normally. Sends commands the way tinytuya and localtuya do: with the device ID in the uid field and the time as text, as the status request already does. Protocol 3.1 to 3.3 only - 3.4 and 3.5 use a different format and are not affected. Saving it reconnects the device, so it applies at once. Leave off otherwise.",
+                "de": "Für ein Gerät, das Befehle quittiert, aber nicht ausführt, während es seinen Zustand normal meldet. Sendet Befehle so wie tinytuya und localtuya: mit der Geräte-ID im Feld uid und der Zeit als Text, so wie es die Statusabfrage schon tut. Nur Protokoll 3.1 bis 3.3 - 3.4 und 3.5 haben ein anderes Format und sind nicht betroffen. Beim Speichern verbindet das Gerät neu, es gilt also sofort. Sonst ausgeschaltet lassen."
               }
             }
           ]
@@ -17570,8 +17570,8 @@
                 "de": "Verbindungsbeginn aufzeichnen"
               },
               "hint": {
-                "en": "Writes every message exchanged with the device during the first 20 seconds of each connection to the log. For tracking down a device that does something when the app connects to it. Takes effect at the next connection — restart the app, or reconnect the device with its flow action. Leave off otherwise: it is verbose.",
-                "de": "Schreibt jede Nachricht, die in den ersten 20 Sekunden einer Verbindung mit dem Gerät ausgetauscht wird, ins Log. Zum Aufspüren eines Geräts, das etwas tut, sobald die App sich verbindet. Greift bei der nächsten Verbindung — die App neu starten oder das Gerät mit seiner Flow-Aktion neu verbinden. Sonst ausgeschaltet lassen: es ist ausführlich."
+                "en": "Writes every message exchanged with the device during the first 20 seconds of each connection to the log. For tracking down a device that does something when the app connects to it. Saving it reconnects the device, so the trace starts right away. Leave off otherwise: it is verbose.",
+                "de": "Schreibt jede Nachricht, die in den ersten 20 Sekunden einer Verbindung mit dem Gerät ausgetauscht wird, ins Log. Zum Aufspüren eines Geräts, das etwas tut, sobald die App sich verbindet. Beim Speichern verbindet das Gerät neu, die Aufzeichnung beginnt also sofort. Sonst ausgeschaltet lassen: es ist ausführlich."
               }
             },
             {
@@ -17583,8 +17583,8 @@
                 "de": "Alternatives Befehlsformat"
               },
               "hint": {
-                "en": "For a device that acknowledges commands but does not carry them out, while it reports its state normally. Sends commands the way tinytuya and localtuya do: with the device ID in the uid field and the time as text, as the status request already does. Protocol 3.1 to 3.3 only - 3.4 and 3.5 use a different format and are not affected. Takes effect at the next connection. Leave off otherwise.",
-                "de": "Für ein Gerät, das Befehle quittiert, aber nicht ausführt, während es seinen Zustand normal meldet. Sendet Befehle so wie tinytuya und localtuya: mit der Geräte-ID im Feld uid und der Zeit als Text, so wie es die Statusabfrage schon tut. Nur Protokoll 3.1 bis 3.3 - 3.4 und 3.5 haben ein anderes Format und sind nicht betroffen. Greift bei der nächsten Verbindung. Sonst ausgeschaltet lassen."
+                "en": "For a device that acknowledges commands but does not carry them out, while it reports its state normally. Sends commands the way tinytuya and localtuya do: with the device ID in the uid field and the time as text, as the status request already does. Protocol 3.1 to 3.3 only - 3.4 and 3.5 use a different format and are not affected. Saving it reconnects the device, so it applies at once. Leave off otherwise.",
+                "de": "Für ein Gerät, das Befehle quittiert, aber nicht ausführt, während es seinen Zustand normal meldet. Sendet Befehle so wie tinytuya und localtuya: mit der Geräte-ID im Feld uid und der Zeit als Text, so wie es die Statusabfrage schon tut. Nur Protokoll 3.1 bis 3.3 - 3.4 und 3.5 haben ein anderes Format und sind nicht betroffen. Beim Speichern verbindet das Gerät neu, es gilt also sofort. Sonst ausgeschaltet lassen."
               }
             }
           ]
@@ -18010,8 +18010,8 @@
                 "de": "Verbindungsbeginn aufzeichnen"
               },
               "hint": {
-                "en": "Writes every message exchanged with the device during the first 20 seconds of each connection to the log. For tracking down a device that does something when the app connects to it. Takes effect at the next connection — restart the app, or reconnect the device with its flow action. Leave off otherwise: it is verbose.",
-                "de": "Schreibt jede Nachricht, die in den ersten 20 Sekunden einer Verbindung mit dem Gerät ausgetauscht wird, ins Log. Zum Aufspüren eines Geräts, das etwas tut, sobald die App sich verbindet. Greift bei der nächsten Verbindung — die App neu starten oder das Gerät mit seiner Flow-Aktion neu verbinden. Sonst ausgeschaltet lassen: es ist ausführlich."
+                "en": "Writes every message exchanged with the device during the first 20 seconds of each connection to the log. For tracking down a device that does something when the app connects to it. Saving it reconnects the device, so the trace starts right away. Leave off otherwise: it is verbose.",
+                "de": "Schreibt jede Nachricht, die in den ersten 20 Sekunden einer Verbindung mit dem Gerät ausgetauscht wird, ins Log. Zum Aufspüren eines Geräts, das etwas tut, sobald die App sich verbindet. Beim Speichern verbindet das Gerät neu, die Aufzeichnung beginnt also sofort. Sonst ausgeschaltet lassen: es ist ausführlich."
               }
             },
             {
@@ -18023,8 +18023,8 @@
                 "de": "Alternatives Befehlsformat"
               },
               "hint": {
-                "en": "For a device that acknowledges commands but does not carry them out, while it reports its state normally. Sends commands the way tinytuya and localtuya do: with the device ID in the uid field and the time as text, as the status request already does. Protocol 3.1 to 3.3 only - 3.4 and 3.5 use a different format and are not affected. Takes effect at the next connection. Leave off otherwise.",
-                "de": "Für ein Gerät, das Befehle quittiert, aber nicht ausführt, während es seinen Zustand normal meldet. Sendet Befehle so wie tinytuya und localtuya: mit der Geräte-ID im Feld uid und der Zeit als Text, so wie es die Statusabfrage schon tut. Nur Protokoll 3.1 bis 3.3 - 3.4 und 3.5 haben ein anderes Format und sind nicht betroffen. Greift bei der nächsten Verbindung. Sonst ausgeschaltet lassen."
+                "en": "For a device that acknowledges commands but does not carry them out, while it reports its state normally. Sends commands the way tinytuya and localtuya do: with the device ID in the uid field and the time as text, as the status request already does. Protocol 3.1 to 3.3 only - 3.4 and 3.5 use a different format and are not affected. Saving it reconnects the device, so it applies at once. Leave off otherwise.",
+                "de": "Für ein Gerät, das Befehle quittiert, aber nicht ausführt, während es seinen Zustand normal meldet. Sendet Befehle so wie tinytuya und localtuya: mit der Geräte-ID im Feld uid und der Zeit als Text, so wie es die Statusabfrage schon tut. Nur Protokoll 3.1 bis 3.3 - 3.4 und 3.5 haben ein anderes Format und sind nicht betroffen. Beim Speichern verbindet das Gerät neu, es gilt also sofort. Sonst ausgeschaltet lassen."
               }
             }
           ]
@@ -18497,8 +18497,8 @@
                 "de": "Verbindungsbeginn aufzeichnen"
               },
               "hint": {
-                "en": "Writes every message exchanged with the device during the first 20 seconds of each connection to the log. For tracking down a device that does something when the app connects to it. Takes effect at the next connection — restart the app, or reconnect the device with its flow action. Leave off otherwise: it is verbose.",
-                "de": "Schreibt jede Nachricht, die in den ersten 20 Sekunden einer Verbindung mit dem Gerät ausgetauscht wird, ins Log. Zum Aufspüren eines Geräts, das etwas tut, sobald die App sich verbindet. Greift bei der nächsten Verbindung — die App neu starten oder das Gerät mit seiner Flow-Aktion neu verbinden. Sonst ausgeschaltet lassen: es ist ausführlich."
+                "en": "Writes every message exchanged with the device during the first 20 seconds of each connection to the log. For tracking down a device that does something when the app connects to it. Saving it reconnects the device, so the trace starts right away. Leave off otherwise: it is verbose.",
+                "de": "Schreibt jede Nachricht, die in den ersten 20 Sekunden einer Verbindung mit dem Gerät ausgetauscht wird, ins Log. Zum Aufspüren eines Geräts, das etwas tut, sobald die App sich verbindet. Beim Speichern verbindet das Gerät neu, die Aufzeichnung beginnt also sofort. Sonst ausgeschaltet lassen: es ist ausführlich."
               }
             },
             {
@@ -18510,8 +18510,8 @@
                 "de": "Alternatives Befehlsformat"
               },
               "hint": {
-                "en": "For a device that acknowledges commands but does not carry them out, while it reports its state normally. Sends commands the way tinytuya and localtuya do: with the device ID in the uid field and the time as text, as the status request already does. Protocol 3.1 to 3.3 only - 3.4 and 3.5 use a different format and are not affected. Takes effect at the next connection. Leave off otherwise.",
-                "de": "Für ein Gerät, das Befehle quittiert, aber nicht ausführt, während es seinen Zustand normal meldet. Sendet Befehle so wie tinytuya und localtuya: mit der Geräte-ID im Feld uid und der Zeit als Text, so wie es die Statusabfrage schon tut. Nur Protokoll 3.1 bis 3.3 - 3.4 und 3.5 haben ein anderes Format und sind nicht betroffen. Greift bei der nächsten Verbindung. Sonst ausgeschaltet lassen."
+                "en": "For a device that acknowledges commands but does not carry them out, while it reports its state normally. Sends commands the way tinytuya and localtuya do: with the device ID in the uid field and the time as text, as the status request already does. Protocol 3.1 to 3.3 only - 3.4 and 3.5 use a different format and are not affected. Saving it reconnects the device, so it applies at once. Leave off otherwise.",
+                "de": "Für ein Gerät, das Befehle quittiert, aber nicht ausführt, während es seinen Zustand normal meldet. Sendet Befehle so wie tinytuya und localtuya: mit der Geräte-ID im Feld uid und der Zeit als Text, so wie es die Statusabfrage schon tut. Nur Protokoll 3.1 bis 3.3 - 3.4 und 3.5 haben ein anderes Format und sind nicht betroffen. Beim Speichern verbindet das Gerät neu, es gilt also sofort. Sonst ausgeschaltet lassen."
               }
             }
           ]
@@ -18797,8 +18797,8 @@
                 "de": "Verbindungsbeginn aufzeichnen"
               },
               "hint": {
-                "en": "Writes every message exchanged with the device during the first 20 seconds of each connection to the log. For tracking down a device that does something when the app connects to it. Takes effect at the next connection — restart the app, or reconnect the device with its flow action. Leave off otherwise: it is verbose.",
-                "de": "Schreibt jede Nachricht, die in den ersten 20 Sekunden einer Verbindung mit dem Gerät ausgetauscht wird, ins Log. Zum Aufspüren eines Geräts, das etwas tut, sobald die App sich verbindet. Greift bei der nächsten Verbindung — die App neu starten oder das Gerät mit seiner Flow-Aktion neu verbinden. Sonst ausgeschaltet lassen: es ist ausführlich."
+                "en": "Writes every message exchanged with the device during the first 20 seconds of each connection to the log. For tracking down a device that does something when the app connects to it. Saving it reconnects the device, so the trace starts right away. Leave off otherwise: it is verbose.",
+                "de": "Schreibt jede Nachricht, die in den ersten 20 Sekunden einer Verbindung mit dem Gerät ausgetauscht wird, ins Log. Zum Aufspüren eines Geräts, das etwas tut, sobald die App sich verbindet. Beim Speichern verbindet das Gerät neu, die Aufzeichnung beginnt also sofort. Sonst ausgeschaltet lassen: es ist ausführlich."
               }
             },
             {
@@ -18810,8 +18810,8 @@
                 "de": "Alternatives Befehlsformat"
               },
               "hint": {
-                "en": "For a device that acknowledges commands but does not carry them out, while it reports its state normally. Sends commands the way tinytuya and localtuya do: with the device ID in the uid field and the time as text, as the status request already does. Protocol 3.1 to 3.3 only - 3.4 and 3.5 use a different format and are not affected. Takes effect at the next connection. Leave off otherwise.",
-                "de": "Für ein Gerät, das Befehle quittiert, aber nicht ausführt, während es seinen Zustand normal meldet. Sendet Befehle so wie tinytuya und localtuya: mit der Geräte-ID im Feld uid und der Zeit als Text, so wie es die Statusabfrage schon tut. Nur Protokoll 3.1 bis 3.3 - 3.4 und 3.5 haben ein anderes Format und sind nicht betroffen. Greift bei der nächsten Verbindung. Sonst ausgeschaltet lassen."
+                "en": "For a device that acknowledges commands but does not carry them out, while it reports its state normally. Sends commands the way tinytuya and localtuya do: with the device ID in the uid field and the time as text, as the status request already does. Protocol 3.1 to 3.3 only - 3.4 and 3.5 use a different format and are not affected. Saving it reconnects the device, so it applies at once. Leave off otherwise.",
+                "de": "Für ein Gerät, das Befehle quittiert, aber nicht ausführt, während es seinen Zustand normal meldet. Sendet Befehle so wie tinytuya und localtuya: mit der Geräte-ID im Feld uid und der Zeit als Text, so wie es die Statusabfrage schon tut. Nur Protokoll 3.1 bis 3.3 - 3.4 und 3.5 haben ein anderes Format und sind nicht betroffen. Beim Speichern verbindet das Gerät neu, es gilt also sofort. Sonst ausgeschaltet lassen."
               }
             }
           ]
@@ -19435,8 +19435,8 @@
                 "de": "Verbindungsbeginn aufzeichnen"
               },
               "hint": {
-                "en": "Writes every message exchanged with the device during the first 20 seconds of each connection to the log. For tracking down a device that does something when the app connects to it. Takes effect at the next connection — restart the app, or reconnect the device with its flow action. Leave off otherwise: it is verbose.",
-                "de": "Schreibt jede Nachricht, die in den ersten 20 Sekunden einer Verbindung mit dem Gerät ausgetauscht wird, ins Log. Zum Aufspüren eines Geräts, das etwas tut, sobald die App sich verbindet. Greift bei der nächsten Verbindung — die App neu starten oder das Gerät mit seiner Flow-Aktion neu verbinden. Sonst ausgeschaltet lassen: es ist ausführlich."
+                "en": "Writes every message exchanged with the device during the first 20 seconds of each connection to the log. For tracking down a device that does something when the app connects to it. Saving it reconnects the device, so the trace starts right away. Leave off otherwise: it is verbose.",
+                "de": "Schreibt jede Nachricht, die in den ersten 20 Sekunden einer Verbindung mit dem Gerät ausgetauscht wird, ins Log. Zum Aufspüren eines Geräts, das etwas tut, sobald die App sich verbindet. Beim Speichern verbindet das Gerät neu, die Aufzeichnung beginnt also sofort. Sonst ausgeschaltet lassen: es ist ausführlich."
               }
             },
             {
@@ -19448,8 +19448,8 @@
                 "de": "Alternatives Befehlsformat"
               },
               "hint": {
-                "en": "For a device that acknowledges commands but does not carry them out, while it reports its state normally. Sends commands the way tinytuya and localtuya do: with the device ID in the uid field and the time as text, as the status request already does. Protocol 3.1 to 3.3 only - 3.4 and 3.5 use a different format and are not affected. Takes effect at the next connection. Leave off otherwise.",
-                "de": "Für ein Gerät, das Befehle quittiert, aber nicht ausführt, während es seinen Zustand normal meldet. Sendet Befehle so wie tinytuya und localtuya: mit der Geräte-ID im Feld uid und der Zeit als Text, so wie es die Statusabfrage schon tut. Nur Protokoll 3.1 bis 3.3 - 3.4 und 3.5 haben ein anderes Format und sind nicht betroffen. Greift bei der nächsten Verbindung. Sonst ausgeschaltet lassen."
+                "en": "For a device that acknowledges commands but does not carry them out, while it reports its state normally. Sends commands the way tinytuya and localtuya do: with the device ID in the uid field and the time as text, as the status request already does. Protocol 3.1 to 3.3 only - 3.4 and 3.5 use a different format and are not affected. Saving it reconnects the device, so it applies at once. Leave off otherwise.",
+                "de": "Für ein Gerät, das Befehle quittiert, aber nicht ausführt, während es seinen Zustand normal meldet. Sendet Befehle so wie tinytuya und localtuya: mit der Geräte-ID im Feld uid und der Zeit als Text, so wie es die Statusabfrage schon tut. Nur Protokoll 3.1 bis 3.3 - 3.4 und 3.5 haben ein anderes Format und sind nicht betroffen. Beim Speichern verbindet das Gerät neu, es gilt also sofort. Sonst ausgeschaltet lassen."
               }
             }
           ]
@@ -20095,8 +20095,8 @@
                 "de": "Verbindungsbeginn aufzeichnen"
               },
               "hint": {
-                "en": "Writes every message exchanged with the device during the first 20 seconds of each connection to the log. For tracking down a device that does something when the app connects to it. Takes effect at the next connection — restart the app, or reconnect the device with its flow action. Leave off otherwise: it is verbose.",
-                "de": "Schreibt jede Nachricht, die in den ersten 20 Sekunden einer Verbindung mit dem Gerät ausgetauscht wird, ins Log. Zum Aufspüren eines Geräts, das etwas tut, sobald die App sich verbindet. Greift bei der nächsten Verbindung — die App neu starten oder das Gerät mit seiner Flow-Aktion neu verbinden. Sonst ausgeschaltet lassen: es ist ausführlich."
+                "en": "Writes every message exchanged with the device during the first 20 seconds of each connection to the log. For tracking down a device that does something when the app connects to it. Saving it reconnects the device, so the trace starts right away. Leave off otherwise: it is verbose.",
+                "de": "Schreibt jede Nachricht, die in den ersten 20 Sekunden einer Verbindung mit dem Gerät ausgetauscht wird, ins Log. Zum Aufspüren eines Geräts, das etwas tut, sobald die App sich verbindet. Beim Speichern verbindet das Gerät neu, die Aufzeichnung beginnt also sofort. Sonst ausgeschaltet lassen: es ist ausführlich."
               }
             },
             {
@@ -20108,8 +20108,8 @@
                 "de": "Alternatives Befehlsformat"
               },
               "hint": {
-                "en": "For a device that acknowledges commands but does not carry them out, while it reports its state normally. Sends commands the way tinytuya and localtuya do: with the device ID in the uid field and the time as text, as the status request already does. Protocol 3.1 to 3.3 only - 3.4 and 3.5 use a different format and are not affected. Takes effect at the next connection. Leave off otherwise.",
-                "de": "Für ein Gerät, das Befehle quittiert, aber nicht ausführt, während es seinen Zustand normal meldet. Sendet Befehle so wie tinytuya und localtuya: mit der Geräte-ID im Feld uid und der Zeit als Text, so wie es die Statusabfrage schon tut. Nur Protokoll 3.1 bis 3.3 - 3.4 und 3.5 haben ein anderes Format und sind nicht betroffen. Greift bei der nächsten Verbindung. Sonst ausgeschaltet lassen."
+                "en": "For a device that acknowledges commands but does not carry them out, while it reports its state normally. Sends commands the way tinytuya and localtuya do: with the device ID in the uid field and the time as text, as the status request already does. Protocol 3.1 to 3.3 only - 3.4 and 3.5 use a different format and are not affected. Saving it reconnects the device, so it applies at once. Leave off otherwise.",
+                "de": "Für ein Gerät, das Befehle quittiert, aber nicht ausführt, während es seinen Zustand normal meldet. Sendet Befehle so wie tinytuya und localtuya: mit der Geräte-ID im Feld uid und der Zeit als Text, so wie es die Statusabfrage schon tut. Nur Protokoll 3.1 bis 3.3 - 3.4 und 3.5 haben ein anderes Format und sind nicht betroffen. Beim Speichern verbindet das Gerät neu, es gilt also sofort. Sonst ausgeschaltet lassen."
               }
             }
           ]
@@ -20775,8 +20775,8 @@
                 "de": "Verbindungsbeginn aufzeichnen"
               },
               "hint": {
-                "en": "Writes every message exchanged with the device during the first 20 seconds of each connection to the log. For tracking down a device that does something when the app connects to it. Takes effect at the next connection — restart the app, or reconnect the device with its flow action. Leave off otherwise: it is verbose.",
-                "de": "Schreibt jede Nachricht, die in den ersten 20 Sekunden einer Verbindung mit dem Gerät ausgetauscht wird, ins Log. Zum Aufspüren eines Geräts, das etwas tut, sobald die App sich verbindet. Greift bei der nächsten Verbindung — die App neu starten oder das Gerät mit seiner Flow-Aktion neu verbinden. Sonst ausgeschaltet lassen: es ist ausführlich."
+                "en": "Writes every message exchanged with the device during the first 20 seconds of each connection to the log. For tracking down a device that does something when the app connects to it. Saving it reconnects the device, so the trace starts right away. Leave off otherwise: it is verbose.",
+                "de": "Schreibt jede Nachricht, die in den ersten 20 Sekunden einer Verbindung mit dem Gerät ausgetauscht wird, ins Log. Zum Aufspüren eines Geräts, das etwas tut, sobald die App sich verbindet. Beim Speichern verbindet das Gerät neu, die Aufzeichnung beginnt also sofort. Sonst ausgeschaltet lassen: es ist ausführlich."
               }
             },
             {
@@ -20788,8 +20788,8 @@
                 "de": "Alternatives Befehlsformat"
               },
               "hint": {
-                "en": "For a device that acknowledges commands but does not carry them out, while it reports its state normally. Sends commands the way tinytuya and localtuya do: with the device ID in the uid field and the time as text, as the status request already does. Protocol 3.1 to 3.3 only - 3.4 and 3.5 use a different format and are not affected. Takes effect at the next connection. Leave off otherwise.",
-                "de": "Für ein Gerät, das Befehle quittiert, aber nicht ausführt, während es seinen Zustand normal meldet. Sendet Befehle so wie tinytuya und localtuya: mit der Geräte-ID im Feld uid und der Zeit als Text, so wie es die Statusabfrage schon tut. Nur Protokoll 3.1 bis 3.3 - 3.4 und 3.5 haben ein anderes Format und sind nicht betroffen. Greift bei der nächsten Verbindung. Sonst ausgeschaltet lassen."
+                "en": "For a device that acknowledges commands but does not carry them out, while it reports its state normally. Sends commands the way tinytuya and localtuya do: with the device ID in the uid field and the time as text, as the status request already does. Protocol 3.1 to 3.3 only - 3.4 and 3.5 use a different format and are not affected. Saving it reconnects the device, so it applies at once. Leave off otherwise.",
+                "de": "Für ein Gerät, das Befehle quittiert, aber nicht ausführt, während es seinen Zustand normal meldet. Sendet Befehle so wie tinytuya und localtuya: mit der Geräte-ID im Feld uid und der Zeit als Text, so wie es die Statusabfrage schon tut. Nur Protokoll 3.1 bis 3.3 - 3.4 und 3.5 haben ein anderes Format und sind nicht betroffen. Beim Speichern verbindet das Gerät neu, es gilt also sofort. Sonst ausgeschaltet lassen."
               }
             }
           ]
@@ -21449,8 +21449,8 @@
                 "de": "Verbindungsbeginn aufzeichnen"
               },
               "hint": {
-                "en": "Writes every message exchanged with the device during the first 20 seconds of each connection to the log. For tracking down a device that does something when the app connects to it. Takes effect at the next connection — restart the app, or reconnect the device with its flow action. Leave off otherwise: it is verbose.",
-                "de": "Schreibt jede Nachricht, die in den ersten 20 Sekunden einer Verbindung mit dem Gerät ausgetauscht wird, ins Log. Zum Aufspüren eines Geräts, das etwas tut, sobald die App sich verbindet. Greift bei der nächsten Verbindung — die App neu starten oder das Gerät mit seiner Flow-Aktion neu verbinden. Sonst ausgeschaltet lassen: es ist ausführlich."
+                "en": "Writes every message exchanged with the device during the first 20 seconds of each connection to the log. For tracking down a device that does something when the app connects to it. Saving it reconnects the device, so the trace starts right away. Leave off otherwise: it is verbose.",
+                "de": "Schreibt jede Nachricht, die in den ersten 20 Sekunden einer Verbindung mit dem Gerät ausgetauscht wird, ins Log. Zum Aufspüren eines Geräts, das etwas tut, sobald die App sich verbindet. Beim Speichern verbindet das Gerät neu, die Aufzeichnung beginnt also sofort. Sonst ausgeschaltet lassen: es ist ausführlich."
               }
             },
             {
@@ -21462,8 +21462,8 @@
                 "de": "Alternatives Befehlsformat"
               },
               "hint": {
-                "en": "For a device that acknowledges commands but does not carry them out, while it reports its state normally. Sends commands the way tinytuya and localtuya do: with the device ID in the uid field and the time as text, as the status request already does. Protocol 3.1 to 3.3 only - 3.4 and 3.5 use a different format and are not affected. Takes effect at the next connection. Leave off otherwise.",
-                "de": "Für ein Gerät, das Befehle quittiert, aber nicht ausführt, während es seinen Zustand normal meldet. Sendet Befehle so wie tinytuya und localtuya: mit der Geräte-ID im Feld uid und der Zeit als Text, so wie es die Statusabfrage schon tut. Nur Protokoll 3.1 bis 3.3 - 3.4 und 3.5 haben ein anderes Format und sind nicht betroffen. Greift bei der nächsten Verbindung. Sonst ausgeschaltet lassen."
+                "en": "For a device that acknowledges commands but does not carry them out, while it reports its state normally. Sends commands the way tinytuya and localtuya do: with the device ID in the uid field and the time as text, as the status request already does. Protocol 3.1 to 3.3 only - 3.4 and 3.5 use a different format and are not affected. Saving it reconnects the device, so it applies at once. Leave off otherwise.",
+                "de": "Für ein Gerät, das Befehle quittiert, aber nicht ausführt, während es seinen Zustand normal meldet. Sendet Befehle so wie tinytuya und localtuya: mit der Geräte-ID im Feld uid und der Zeit als Text, so wie es die Statusabfrage schon tut. Nur Protokoll 3.1 bis 3.3 - 3.4 und 3.5 haben ein anderes Format und sind nicht betroffen. Beim Speichern verbindet das Gerät neu, es gilt also sofort. Sonst ausgeschaltet lassen."
               }
             }
           ]
@@ -21978,8 +21978,8 @@
                 "de": "Verbindungsbeginn aufzeichnen"
               },
               "hint": {
-                "en": "Writes every message exchanged with the device during the first 20 seconds of each connection to the log. For tracking down a device that does something when the app connects to it. Takes effect at the next connection — restart the app, or reconnect the device with its flow action. Leave off otherwise: it is verbose.",
-                "de": "Schreibt jede Nachricht, die in den ersten 20 Sekunden einer Verbindung mit dem Gerät ausgetauscht wird, ins Log. Zum Aufspüren eines Geräts, das etwas tut, sobald die App sich verbindet. Greift bei der nächsten Verbindung — die App neu starten oder das Gerät mit seiner Flow-Aktion neu verbinden. Sonst ausgeschaltet lassen: es ist ausführlich."
+                "en": "Writes every message exchanged with the device during the first 20 seconds of each connection to the log. For tracking down a device that does something when the app connects to it. Saving it reconnects the device, so the trace starts right away. Leave off otherwise: it is verbose.",
+                "de": "Schreibt jede Nachricht, die in den ersten 20 Sekunden einer Verbindung mit dem Gerät ausgetauscht wird, ins Log. Zum Aufspüren eines Geräts, das etwas tut, sobald die App sich verbindet. Beim Speichern verbindet das Gerät neu, die Aufzeichnung beginnt also sofort. Sonst ausgeschaltet lassen: es ist ausführlich."
               }
             },
             {
@@ -21991,8 +21991,8 @@
                 "de": "Alternatives Befehlsformat"
               },
               "hint": {
-                "en": "For a device that acknowledges commands but does not carry them out, while it reports its state normally. Sends commands the way tinytuya and localtuya do: with the device ID in the uid field and the time as text, as the status request already does. Protocol 3.1 to 3.3 only - 3.4 and 3.5 use a different format and are not affected. Takes effect at the next connection. Leave off otherwise.",
-                "de": "Für ein Gerät, das Befehle quittiert, aber nicht ausführt, während es seinen Zustand normal meldet. Sendet Befehle so wie tinytuya und localtuya: mit der Geräte-ID im Feld uid und der Zeit als Text, so wie es die Statusabfrage schon tut. Nur Protokoll 3.1 bis 3.3 - 3.4 und 3.5 haben ein anderes Format und sind nicht betroffen. Greift bei der nächsten Verbindung. Sonst ausgeschaltet lassen."
+                "en": "For a device that acknowledges commands but does not carry them out, while it reports its state normally. Sends commands the way tinytuya and localtuya do: with the device ID in the uid field and the time as text, as the status request already does. Protocol 3.1 to 3.3 only - 3.4 and 3.5 use a different format and are not affected. Saving it reconnects the device, so it applies at once. Leave off otherwise.",
+                "de": "Für ein Gerät, das Befehle quittiert, aber nicht ausführt, während es seinen Zustand normal meldet. Sendet Befehle so wie tinytuya und localtuya: mit der Geräte-ID im Feld uid und der Zeit als Text, so wie es die Statusabfrage schon tut. Nur Protokoll 3.1 bis 3.3 - 3.4 und 3.5 haben ein anderes Format und sind nicht betroffen. Beim Speichern verbindet das Gerät neu, es gilt also sofort. Sonst ausgeschaltet lassen."
               }
             }
           ]
@@ -22496,8 +22496,8 @@
                 "de": "Verbindungsbeginn aufzeichnen"
               },
               "hint": {
-                "en": "Writes every message exchanged with the device during the first 20 seconds of each connection to the log. For tracking down a device that does something when the app connects to it. Takes effect at the next connection — restart the app, or reconnect the device with its flow action. Leave off otherwise: it is verbose.",
-                "de": "Schreibt jede Nachricht, die in den ersten 20 Sekunden einer Verbindung mit dem Gerät ausgetauscht wird, ins Log. Zum Aufspüren eines Geräts, das etwas tut, sobald die App sich verbindet. Greift bei der nächsten Verbindung — die App neu starten oder das Gerät mit seiner Flow-Aktion neu verbinden. Sonst ausgeschaltet lassen: es ist ausführlich."
+                "en": "Writes every message exchanged with the device during the first 20 seconds of each connection to the log. For tracking down a device that does something when the app connects to it. Saving it reconnects the device, so the trace starts right away. Leave off otherwise: it is verbose.",
+                "de": "Schreibt jede Nachricht, die in den ersten 20 Sekunden einer Verbindung mit dem Gerät ausgetauscht wird, ins Log. Zum Aufspüren eines Geräts, das etwas tut, sobald die App sich verbindet. Beim Speichern verbindet das Gerät neu, die Aufzeichnung beginnt also sofort. Sonst ausgeschaltet lassen: es ist ausführlich."
               }
             },
             {
@@ -22509,8 +22509,8 @@
                 "de": "Alternatives Befehlsformat"
               },
               "hint": {
-                "en": "For a device that acknowledges commands but does not carry them out, while it reports its state normally. Sends commands the way tinytuya and localtuya do: with the device ID in the uid field and the time as text, as the status request already does. Protocol 3.1 to 3.3 only - 3.4 and 3.5 use a different format and are not affected. Takes effect at the next connection. Leave off otherwise.",
-                "de": "Für ein Gerät, das Befehle quittiert, aber nicht ausführt, während es seinen Zustand normal meldet. Sendet Befehle so wie tinytuya und localtuya: mit der Geräte-ID im Feld uid und der Zeit als Text, so wie es die Statusabfrage schon tut. Nur Protokoll 3.1 bis 3.3 - 3.4 und 3.5 haben ein anderes Format und sind nicht betroffen. Greift bei der nächsten Verbindung. Sonst ausgeschaltet lassen."
+                "en": "For a device that acknowledges commands but does not carry them out, while it reports its state normally. Sends commands the way tinytuya and localtuya do: with the device ID in the uid field and the time as text, as the status request already does. Protocol 3.1 to 3.3 only - 3.4 and 3.5 use a different format and are not affected. Saving it reconnects the device, so it applies at once. Leave off otherwise.",
+                "de": "Für ein Gerät, das Befehle quittiert, aber nicht ausführt, während es seinen Zustand normal meldet. Sendet Befehle so wie tinytuya und localtuya: mit der Geräte-ID im Feld uid und der Zeit als Text, so wie es die Statusabfrage schon tut. Nur Protokoll 3.1 bis 3.3 - 3.4 und 3.5 haben ein anderes Format und sind nicht betroffen. Beim Speichern verbindet das Gerät neu, es gilt also sofort. Sonst ausgeschaltet lassen."
               }
             }
           ]
@@ -22945,8 +22945,8 @@
                 "de": "Verbindungsbeginn aufzeichnen"
               },
               "hint": {
-                "en": "Writes every message exchanged with the device during the first 20 seconds of each connection to the log. For tracking down a device that does something when the app connects to it. Takes effect at the next connection — restart the app, or reconnect the device with its flow action. Leave off otherwise: it is verbose.",
-                "de": "Schreibt jede Nachricht, die in den ersten 20 Sekunden einer Verbindung mit dem Gerät ausgetauscht wird, ins Log. Zum Aufspüren eines Geräts, das etwas tut, sobald die App sich verbindet. Greift bei der nächsten Verbindung — die App neu starten oder das Gerät mit seiner Flow-Aktion neu verbinden. Sonst ausgeschaltet lassen: es ist ausführlich."
+                "en": "Writes every message exchanged with the device during the first 20 seconds of each connection to the log. For tracking down a device that does something when the app connects to it. Saving it reconnects the device, so the trace starts right away. Leave off otherwise: it is verbose.",
+                "de": "Schreibt jede Nachricht, die in den ersten 20 Sekunden einer Verbindung mit dem Gerät ausgetauscht wird, ins Log. Zum Aufspüren eines Geräts, das etwas tut, sobald die App sich verbindet. Beim Speichern verbindet das Gerät neu, die Aufzeichnung beginnt also sofort. Sonst ausgeschaltet lassen: es ist ausführlich."
               }
             },
             {
@@ -22958,8 +22958,8 @@
                 "de": "Alternatives Befehlsformat"
               },
               "hint": {
-                "en": "For a device that acknowledges commands but does not carry them out, while it reports its state normally. Sends commands the way tinytuya and localtuya do: with the device ID in the uid field and the time as text, as the status request already does. Protocol 3.1 to 3.3 only - 3.4 and 3.5 use a different format and are not affected. Takes effect at the next connection. Leave off otherwise.",
-                "de": "Für ein Gerät, das Befehle quittiert, aber nicht ausführt, während es seinen Zustand normal meldet. Sendet Befehle so wie tinytuya und localtuya: mit der Geräte-ID im Feld uid und der Zeit als Text, so wie es die Statusabfrage schon tut. Nur Protokoll 3.1 bis 3.3 - 3.4 und 3.5 haben ein anderes Format und sind nicht betroffen. Greift bei der nächsten Verbindung. Sonst ausgeschaltet lassen."
+                "en": "For a device that acknowledges commands but does not carry them out, while it reports its state normally. Sends commands the way tinytuya and localtuya do: with the device ID in the uid field and the time as text, as the status request already does. Protocol 3.1 to 3.3 only - 3.4 and 3.5 use a different format and are not affected. Saving it reconnects the device, so it applies at once. Leave off otherwise.",
+                "de": "Für ein Gerät, das Befehle quittiert, aber nicht ausführt, während es seinen Zustand normal meldet. Sendet Befehle so wie tinytuya und localtuya: mit der Geräte-ID im Feld uid und der Zeit als Text, so wie es die Statusabfrage schon tut. Nur Protokoll 3.1 bis 3.3 - 3.4 und 3.5 haben ein anderes Format und sind nicht betroffen. Beim Speichern verbindet das Gerät neu, es gilt also sofort. Sonst ausgeschaltet lassen."
               }
             }
           ]
@@ -23510,8 +23510,8 @@
                 "de": "Verbindungsbeginn aufzeichnen"
               },
               "hint": {
-                "en": "Writes every message exchanged with the device during the first 20 seconds of each connection to the log. For tracking down a device that does something when the app connects to it. Takes effect at the next connection — restart the app, or reconnect the device with its flow action. Leave off otherwise: it is verbose.",
-                "de": "Schreibt jede Nachricht, die in den ersten 20 Sekunden einer Verbindung mit dem Gerät ausgetauscht wird, ins Log. Zum Aufspüren eines Geräts, das etwas tut, sobald die App sich verbindet. Greift bei der nächsten Verbindung — die App neu starten oder das Gerät mit seiner Flow-Aktion neu verbinden. Sonst ausgeschaltet lassen: es ist ausführlich."
+                "en": "Writes every message exchanged with the device during the first 20 seconds of each connection to the log. For tracking down a device that does something when the app connects to it. Saving it reconnects the device, so the trace starts right away. Leave off otherwise: it is verbose.",
+                "de": "Schreibt jede Nachricht, die in den ersten 20 Sekunden einer Verbindung mit dem Gerät ausgetauscht wird, ins Log. Zum Aufspüren eines Geräts, das etwas tut, sobald die App sich verbindet. Beim Speichern verbindet das Gerät neu, die Aufzeichnung beginnt also sofort. Sonst ausgeschaltet lassen: es ist ausführlich."
               }
             },
             {
@@ -23523,8 +23523,8 @@
                 "de": "Alternatives Befehlsformat"
               },
               "hint": {
-                "en": "For a device that acknowledges commands but does not carry them out, while it reports its state normally. Sends commands the way tinytuya and localtuya do: with the device ID in the uid field and the time as text, as the status request already does. Protocol 3.1 to 3.3 only - 3.4 and 3.5 use a different format and are not affected. Takes effect at the next connection. Leave off otherwise.",
-                "de": "Für ein Gerät, das Befehle quittiert, aber nicht ausführt, während es seinen Zustand normal meldet. Sendet Befehle so wie tinytuya und localtuya: mit der Geräte-ID im Feld uid und der Zeit als Text, so wie es die Statusabfrage schon tut. Nur Protokoll 3.1 bis 3.3 - 3.4 und 3.5 haben ein anderes Format und sind nicht betroffen. Greift bei der nächsten Verbindung. Sonst ausgeschaltet lassen."
+                "en": "For a device that acknowledges commands but does not carry them out, while it reports its state normally. Sends commands the way tinytuya and localtuya do: with the device ID in the uid field and the time as text, as the status request already does. Protocol 3.1 to 3.3 only - 3.4 and 3.5 use a different format and are not affected. Saving it reconnects the device, so it applies at once. Leave off otherwise.",
+                "de": "Für ein Gerät, das Befehle quittiert, aber nicht ausführt, während es seinen Zustand normal meldet. Sendet Befehle so wie tinytuya und localtuya: mit der Geräte-ID im Feld uid und der Zeit als Text, so wie es die Statusabfrage schon tut. Nur Protokoll 3.1 bis 3.3 - 3.4 und 3.5 haben ein anderes Format und sind nicht betroffen. Beim Speichern verbindet das Gerät neu, es gilt also sofort. Sonst ausgeschaltet lassen."
               }
             }
           ]
@@ -23946,8 +23946,8 @@
                 "de": "Verbindungsbeginn aufzeichnen"
               },
               "hint": {
-                "en": "Writes every message exchanged with the device during the first 20 seconds of each connection to the log. For tracking down a device that does something when the app connects to it. Takes effect at the next connection — restart the app, or reconnect the device with its flow action. Leave off otherwise: it is verbose.",
-                "de": "Schreibt jede Nachricht, die in den ersten 20 Sekunden einer Verbindung mit dem Gerät ausgetauscht wird, ins Log. Zum Aufspüren eines Geräts, das etwas tut, sobald die App sich verbindet. Greift bei der nächsten Verbindung — die App neu starten oder das Gerät mit seiner Flow-Aktion neu verbinden. Sonst ausgeschaltet lassen: es ist ausführlich."
+                "en": "Writes every message exchanged with the device during the first 20 seconds of each connection to the log. For tracking down a device that does something when the app connects to it. Saving it reconnects the device, so the trace starts right away. Leave off otherwise: it is verbose.",
+                "de": "Schreibt jede Nachricht, die in den ersten 20 Sekunden einer Verbindung mit dem Gerät ausgetauscht wird, ins Log. Zum Aufspüren eines Geräts, das etwas tut, sobald die App sich verbindet. Beim Speichern verbindet das Gerät neu, die Aufzeichnung beginnt also sofort. Sonst ausgeschaltet lassen: es ist ausführlich."
               }
             },
             {
@@ -23959,8 +23959,8 @@
                 "de": "Alternatives Befehlsformat"
               },
               "hint": {
-                "en": "For a device that acknowledges commands but does not carry them out, while it reports its state normally. Sends commands the way tinytuya and localtuya do: with the device ID in the uid field and the time as text, as the status request already does. Protocol 3.1 to 3.3 only - 3.4 and 3.5 use a different format and are not affected. Takes effect at the next connection. Leave off otherwise.",
-                "de": "Für ein Gerät, das Befehle quittiert, aber nicht ausführt, während es seinen Zustand normal meldet. Sendet Befehle so wie tinytuya und localtuya: mit der Geräte-ID im Feld uid und der Zeit als Text, so wie es die Statusabfrage schon tut. Nur Protokoll 3.1 bis 3.3 - 3.4 und 3.5 haben ein anderes Format und sind nicht betroffen. Greift bei der nächsten Verbindung. Sonst ausgeschaltet lassen."
+                "en": "For a device that acknowledges commands but does not carry them out, while it reports its state normally. Sends commands the way tinytuya and localtuya do: with the device ID in the uid field and the time as text, as the status request already does. Protocol 3.1 to 3.3 only - 3.4 and 3.5 use a different format and are not affected. Saving it reconnects the device, so it applies at once. Leave off otherwise.",
+                "de": "Für ein Gerät, das Befehle quittiert, aber nicht ausführt, während es seinen Zustand normal meldet. Sendet Befehle so wie tinytuya und localtuya: mit der Geräte-ID im Feld uid und der Zeit als Text, so wie es die Statusabfrage schon tut. Nur Protokoll 3.1 bis 3.3 - 3.4 und 3.5 haben ein anderes Format und sind nicht betroffen. Beim Speichern verbindet das Gerät neu, es gilt also sofort. Sonst ausgeschaltet lassen."
               }
             }
           ]
@@ -24557,8 +24557,8 @@
                 "de": "Verbindungsbeginn aufzeichnen"
               },
               "hint": {
-                "en": "Writes every message exchanged with the device during the first 20 seconds of each connection to the log. For tracking down a device that does something when the app connects to it. Takes effect at the next connection — restart the app, or reconnect the device with its flow action. Leave off otherwise: it is verbose.",
-                "de": "Schreibt jede Nachricht, die in den ersten 20 Sekunden einer Verbindung mit dem Gerät ausgetauscht wird, ins Log. Zum Aufspüren eines Geräts, das etwas tut, sobald die App sich verbindet. Greift bei der nächsten Verbindung — die App neu starten oder das Gerät mit seiner Flow-Aktion neu verbinden. Sonst ausgeschaltet lassen: es ist ausführlich."
+                "en": "Writes every message exchanged with the device during the first 20 seconds of each connection to the log. For tracking down a device that does something when the app connects to it. Saving it reconnects the device, so the trace starts right away. Leave off otherwise: it is verbose.",
+                "de": "Schreibt jede Nachricht, die in den ersten 20 Sekunden einer Verbindung mit dem Gerät ausgetauscht wird, ins Log. Zum Aufspüren eines Geräts, das etwas tut, sobald die App sich verbindet. Beim Speichern verbindet das Gerät neu, die Aufzeichnung beginnt also sofort. Sonst ausgeschaltet lassen: es ist ausführlich."
               }
             },
             {
@@ -24570,8 +24570,8 @@
                 "de": "Alternatives Befehlsformat"
               },
               "hint": {
-                "en": "For a device that acknowledges commands but does not carry them out, while it reports its state normally. Sends commands the way tinytuya and localtuya do: with the device ID in the uid field and the time as text, as the status request already does. Protocol 3.1 to 3.3 only - 3.4 and 3.5 use a different format and are not affected. Takes effect at the next connection. Leave off otherwise.",
-                "de": "Für ein Gerät, das Befehle quittiert, aber nicht ausführt, während es seinen Zustand normal meldet. Sendet Befehle so wie tinytuya und localtuya: mit der Geräte-ID im Feld uid und der Zeit als Text, so wie es die Statusabfrage schon tut. Nur Protokoll 3.1 bis 3.3 - 3.4 und 3.5 haben ein anderes Format und sind nicht betroffen. Greift bei der nächsten Verbindung. Sonst ausgeschaltet lassen."
+                "en": "For a device that acknowledges commands but does not carry them out, while it reports its state normally. Sends commands the way tinytuya and localtuya do: with the device ID in the uid field and the time as text, as the status request already does. Protocol 3.1 to 3.3 only - 3.4 and 3.5 use a different format and are not affected. Saving it reconnects the device, so it applies at once. Leave off otherwise.",
+                "de": "Für ein Gerät, das Befehle quittiert, aber nicht ausführt, während es seinen Zustand normal meldet. Sendet Befehle so wie tinytuya und localtuya: mit der Geräte-ID im Feld uid und der Zeit als Text, so wie es die Statusabfrage schon tut. Nur Protokoll 3.1 bis 3.3 - 3.4 und 3.5 haben ein anderes Format und sind nicht betroffen. Beim Speichern verbindet das Gerät neu, es gilt also sofort. Sonst ausgeschaltet lassen."
               }
             }
           ]
@@ -25026,8 +25026,8 @@
                 "de": "Verbindungsbeginn aufzeichnen"
               },
               "hint": {
-                "en": "Writes every message exchanged with the device during the first 20 seconds of each connection to the log. For tracking down a device that does something when the app connects to it. Takes effect at the next connection — restart the app, or reconnect the device with its flow action. Leave off otherwise: it is verbose.",
-                "de": "Schreibt jede Nachricht, die in den ersten 20 Sekunden einer Verbindung mit dem Gerät ausgetauscht wird, ins Log. Zum Aufspüren eines Geräts, das etwas tut, sobald die App sich verbindet. Greift bei der nächsten Verbindung — die App neu starten oder das Gerät mit seiner Flow-Aktion neu verbinden. Sonst ausgeschaltet lassen: es ist ausführlich."
+                "en": "Writes every message exchanged with the device during the first 20 seconds of each connection to the log. For tracking down a device that does something when the app connects to it. Saving it reconnects the device, so the trace starts right away. Leave off otherwise: it is verbose.",
+                "de": "Schreibt jede Nachricht, die in den ersten 20 Sekunden einer Verbindung mit dem Gerät ausgetauscht wird, ins Log. Zum Aufspüren eines Geräts, das etwas tut, sobald die App sich verbindet. Beim Speichern verbindet das Gerät neu, die Aufzeichnung beginnt also sofort. Sonst ausgeschaltet lassen: es ist ausführlich."
               }
             },
             {
@@ -25039,8 +25039,8 @@
                 "de": "Alternatives Befehlsformat"
               },
               "hint": {
-                "en": "For a device that acknowledges commands but does not carry them out, while it reports its state normally. Sends commands the way tinytuya and localtuya do: with the device ID in the uid field and the time as text, as the status request already does. Protocol 3.1 to 3.3 only - 3.4 and 3.5 use a different format and are not affected. Takes effect at the next connection. Leave off otherwise.",
-                "de": "Für ein Gerät, das Befehle quittiert, aber nicht ausführt, während es seinen Zustand normal meldet. Sendet Befehle so wie tinytuya und localtuya: mit der Geräte-ID im Feld uid und der Zeit als Text, so wie es die Statusabfrage schon tut. Nur Protokoll 3.1 bis 3.3 - 3.4 und 3.5 haben ein anderes Format und sind nicht betroffen. Greift bei der nächsten Verbindung. Sonst ausgeschaltet lassen."
+                "en": "For a device that acknowledges commands but does not carry them out, while it reports its state normally. Sends commands the way tinytuya and localtuya do: with the device ID in the uid field and the time as text, as the status request already does. Protocol 3.1 to 3.3 only - 3.4 and 3.5 use a different format and are not affected. Saving it reconnects the device, so it applies at once. Leave off otherwise.",
+                "de": "Für ein Gerät, das Befehle quittiert, aber nicht ausführt, während es seinen Zustand normal meldet. Sendet Befehle so wie tinytuya und localtuya: mit der Geräte-ID im Feld uid und der Zeit als Text, so wie es die Statusabfrage schon tut. Nur Protokoll 3.1 bis 3.3 - 3.4 und 3.5 haben ein anderes Format und sind nicht betroffen. Beim Speichern verbindet das Gerät neu, es gilt also sofort. Sonst ausgeschaltet lassen."
               }
             }
           ]
@@ -25556,8 +25556,8 @@
                 "de": "Verbindungsbeginn aufzeichnen"
               },
               "hint": {
-                "en": "Writes every message exchanged with the device during the first 20 seconds of each connection to the log. For tracking down a device that does something when the app connects to it. Takes effect at the next connection — restart the app, or reconnect the device with its flow action. Leave off otherwise: it is verbose.",
-                "de": "Schreibt jede Nachricht, die in den ersten 20 Sekunden einer Verbindung mit dem Gerät ausgetauscht wird, ins Log. Zum Aufspüren eines Geräts, das etwas tut, sobald die App sich verbindet. Greift bei der nächsten Verbindung — die App neu starten oder das Gerät mit seiner Flow-Aktion neu verbinden. Sonst ausgeschaltet lassen: es ist ausführlich."
+                "en": "Writes every message exchanged with the device during the first 20 seconds of each connection to the log. For tracking down a device that does something when the app connects to it. Saving it reconnects the device, so the trace starts right away. Leave off otherwise: it is verbose.",
+                "de": "Schreibt jede Nachricht, die in den ersten 20 Sekunden einer Verbindung mit dem Gerät ausgetauscht wird, ins Log. Zum Aufspüren eines Geräts, das etwas tut, sobald die App sich verbindet. Beim Speichern verbindet das Gerät neu, die Aufzeichnung beginnt also sofort. Sonst ausgeschaltet lassen: es ist ausführlich."
               }
             },
             {
@@ -25569,8 +25569,8 @@
                 "de": "Alternatives Befehlsformat"
               },
               "hint": {
-                "en": "For a device that acknowledges commands but does not carry them out, while it reports its state normally. Sends commands the way tinytuya and localtuya do: with the device ID in the uid field and the time as text, as the status request already does. Protocol 3.1 to 3.3 only - 3.4 and 3.5 use a different format and are not affected. Takes effect at the next connection. Leave off otherwise.",
-                "de": "Für ein Gerät, das Befehle quittiert, aber nicht ausführt, während es seinen Zustand normal meldet. Sendet Befehle so wie tinytuya und localtuya: mit der Geräte-ID im Feld uid und der Zeit als Text, so wie es die Statusabfrage schon tut. Nur Protokoll 3.1 bis 3.3 - 3.4 und 3.5 haben ein anderes Format und sind nicht betroffen. Greift bei der nächsten Verbindung. Sonst ausgeschaltet lassen."
+                "en": "For a device that acknowledges commands but does not carry them out, while it reports its state normally. Sends commands the way tinytuya and localtuya do: with the device ID in the uid field and the time as text, as the status request already does. Protocol 3.1 to 3.3 only - 3.4 and 3.5 use a different format and are not affected. Saving it reconnects the device, so it applies at once. Leave off otherwise.",
+                "de": "Für ein Gerät, das Befehle quittiert, aber nicht ausführt, während es seinen Zustand normal meldet. Sendet Befehle so wie tinytuya und localtuya: mit der Geräte-ID im Feld uid und der Zeit als Text, so wie es die Statusabfrage schon tut. Nur Protokoll 3.1 bis 3.3 - 3.4 und 3.5 haben ein anderes Format und sind nicht betroffen. Beim Speichern verbindet das Gerät neu, es gilt also sofort. Sonst ausgeschaltet lassen."
               }
             }
           ]
@@ -26103,8 +26103,8 @@
                 "de": "Verbindungsbeginn aufzeichnen"
               },
               "hint": {
-                "en": "Writes every message exchanged with the device during the first 20 seconds of each connection to the log. For tracking down a device that does something when the app connects to it. Takes effect at the next connection — restart the app, or reconnect the device with its flow action. Leave off otherwise: it is verbose.",
-                "de": "Schreibt jede Nachricht, die in den ersten 20 Sekunden einer Verbindung mit dem Gerät ausgetauscht wird, ins Log. Zum Aufspüren eines Geräts, das etwas tut, sobald die App sich verbindet. Greift bei der nächsten Verbindung — die App neu starten oder das Gerät mit seiner Flow-Aktion neu verbinden. Sonst ausgeschaltet lassen: es ist ausführlich."
+                "en": "Writes every message exchanged with the device during the first 20 seconds of each connection to the log. For tracking down a device that does something when the app connects to it. Saving it reconnects the device, so the trace starts right away. Leave off otherwise: it is verbose.",
+                "de": "Schreibt jede Nachricht, die in den ersten 20 Sekunden einer Verbindung mit dem Gerät ausgetauscht wird, ins Log. Zum Aufspüren eines Geräts, das etwas tut, sobald die App sich verbindet. Beim Speichern verbindet das Gerät neu, die Aufzeichnung beginnt also sofort. Sonst ausgeschaltet lassen: es ist ausführlich."
               }
             },
             {
@@ -26116,8 +26116,8 @@
                 "de": "Alternatives Befehlsformat"
               },
               "hint": {
-                "en": "For a device that acknowledges commands but does not carry them out, while it reports its state normally. Sends commands the way tinytuya and localtuya do: with the device ID in the uid field and the time as text, as the status request already does. Protocol 3.1 to 3.3 only - 3.4 and 3.5 use a different format and are not affected. Takes effect at the next connection. Leave off otherwise.",
-                "de": "Für ein Gerät, das Befehle quittiert, aber nicht ausführt, während es seinen Zustand normal meldet. Sendet Befehle so wie tinytuya und localtuya: mit der Geräte-ID im Feld uid und der Zeit als Text, so wie es die Statusabfrage schon tut. Nur Protokoll 3.1 bis 3.3 - 3.4 und 3.5 haben ein anderes Format und sind nicht betroffen. Greift bei der nächsten Verbindung. Sonst ausgeschaltet lassen."
+                "en": "For a device that acknowledges commands but does not carry them out, while it reports its state normally. Sends commands the way tinytuya and localtuya do: with the device ID in the uid field and the time as text, as the status request already does. Protocol 3.1 to 3.3 only - 3.4 and 3.5 use a different format and are not affected. Saving it reconnects the device, so it applies at once. Leave off otherwise.",
+                "de": "Für ein Gerät, das Befehle quittiert, aber nicht ausführt, während es seinen Zustand normal meldet. Sendet Befehle so wie tinytuya und localtuya: mit der Geräte-ID im Feld uid und der Zeit als Text, so wie es die Statusabfrage schon tut. Nur Protokoll 3.1 bis 3.3 - 3.4 und 3.5 haben ein anderes Format und sind nicht betroffen. Beim Speichern verbindet das Gerät neu, es gilt also sofort. Sonst ausgeschaltet lassen."
               }
             }
           ]
@@ -26713,8 +26713,8 @@
                 "de": "Verbindungsbeginn aufzeichnen"
               },
               "hint": {
-                "en": "Writes every message exchanged with the device during the first 20 seconds of each connection to the log. For tracking down a device that does something when the app connects to it. Takes effect at the next connection — restart the app, or reconnect the device with its flow action. Leave off otherwise: it is verbose.",
-                "de": "Schreibt jede Nachricht, die in den ersten 20 Sekunden einer Verbindung mit dem Gerät ausgetauscht wird, ins Log. Zum Aufspüren eines Geräts, das etwas tut, sobald die App sich verbindet. Greift bei der nächsten Verbindung — die App neu starten oder das Gerät mit seiner Flow-Aktion neu verbinden. Sonst ausgeschaltet lassen: es ist ausführlich."
+                "en": "Writes every message exchanged with the device during the first 20 seconds of each connection to the log. For tracking down a device that does something when the app connects to it. Saving it reconnects the device, so the trace starts right away. Leave off otherwise: it is verbose.",
+                "de": "Schreibt jede Nachricht, die in den ersten 20 Sekunden einer Verbindung mit dem Gerät ausgetauscht wird, ins Log. Zum Aufspüren eines Geräts, das etwas tut, sobald die App sich verbindet. Beim Speichern verbindet das Gerät neu, die Aufzeichnung beginnt also sofort. Sonst ausgeschaltet lassen: es ist ausführlich."
               }
             },
             {
@@ -26726,8 +26726,8 @@
                 "de": "Alternatives Befehlsformat"
               },
               "hint": {
-                "en": "For a device that acknowledges commands but does not carry them out, while it reports its state normally. Sends commands the way tinytuya and localtuya do: with the device ID in the uid field and the time as text, as the status request already does. Protocol 3.1 to 3.3 only - 3.4 and 3.5 use a different format and are not affected. Takes effect at the next connection. Leave off otherwise.",
-                "de": "Für ein Gerät, das Befehle quittiert, aber nicht ausführt, während es seinen Zustand normal meldet. Sendet Befehle so wie tinytuya und localtuya: mit der Geräte-ID im Feld uid und der Zeit als Text, so wie es die Statusabfrage schon tut. Nur Protokoll 3.1 bis 3.3 - 3.4 und 3.5 haben ein anderes Format und sind nicht betroffen. Greift bei der nächsten Verbindung. Sonst ausgeschaltet lassen."
+                "en": "For a device that acknowledges commands but does not carry them out, while it reports its state normally. Sends commands the way tinytuya and localtuya do: with the device ID in the uid field and the time as text, as the status request already does. Protocol 3.1 to 3.3 only - 3.4 and 3.5 use a different format and are not affected. Saving it reconnects the device, so it applies at once. Leave off otherwise.",
+                "de": "Für ein Gerät, das Befehle quittiert, aber nicht ausführt, während es seinen Zustand normal meldet. Sendet Befehle so wie tinytuya und localtuya: mit der Geräte-ID im Feld uid und der Zeit als Text, so wie es die Statusabfrage schon tut. Nur Protokoll 3.1 bis 3.3 - 3.4 und 3.5 haben ein anderes Format und sind nicht betroffen. Beim Speichern verbindet das Gerät neu, es gilt also sofort. Sonst ausgeschaltet lassen."
               }
             }
           ]
@@ -27847,8 +27847,8 @@
                 "de": "Verbindungsbeginn aufzeichnen"
               },
               "hint": {
-                "en": "Writes every message exchanged with the device during the first 20 seconds of each connection to the log. For tracking down a device that does something when the app connects to it. Takes effect at the next connection — restart the app, or reconnect the device with its flow action. Leave off otherwise: it is verbose.",
-                "de": "Schreibt jede Nachricht, die in den ersten 20 Sekunden einer Verbindung mit dem Gerät ausgetauscht wird, ins Log. Zum Aufspüren eines Geräts, das etwas tut, sobald die App sich verbindet. Greift bei der nächsten Verbindung — die App neu starten oder das Gerät mit seiner Flow-Aktion neu verbinden. Sonst ausgeschaltet lassen: es ist ausführlich."
+                "en": "Writes every message exchanged with the device during the first 20 seconds of each connection to the log. For tracking down a device that does something when the app connects to it. Saving it reconnects the device, so the trace starts right away. Leave off otherwise: it is verbose.",
+                "de": "Schreibt jede Nachricht, die in den ersten 20 Sekunden einer Verbindung mit dem Gerät ausgetauscht wird, ins Log. Zum Aufspüren eines Geräts, das etwas tut, sobald die App sich verbindet. Beim Speichern verbindet das Gerät neu, die Aufzeichnung beginnt also sofort. Sonst ausgeschaltet lassen: es ist ausführlich."
               }
             },
             {
@@ -27860,8 +27860,8 @@
                 "de": "Alternatives Befehlsformat"
               },
               "hint": {
-                "en": "For a device that acknowledges commands but does not carry them out, while it reports its state normally. Sends commands the way tinytuya and localtuya do: with the device ID in the uid field and the time as text, as the status request already does. Protocol 3.1 to 3.3 only - 3.4 and 3.5 use a different format and are not affected. Takes effect at the next connection. Leave off otherwise.",
-                "de": "Für ein Gerät, das Befehle quittiert, aber nicht ausführt, während es seinen Zustand normal meldet. Sendet Befehle so wie tinytuya und localtuya: mit der Geräte-ID im Feld uid und der Zeit als Text, so wie es die Statusabfrage schon tut. Nur Protokoll 3.1 bis 3.3 - 3.4 und 3.5 haben ein anderes Format und sind nicht betroffen. Greift bei der nächsten Verbindung. Sonst ausgeschaltet lassen."
+                "en": "For a device that acknowledges commands but does not carry them out, while it reports its state normally. Sends commands the way tinytuya and localtuya do: with the device ID in the uid field and the time as text, as the status request already does. Protocol 3.1 to 3.3 only - 3.4 and 3.5 use a different format and are not affected. Saving it reconnects the device, so it applies at once. Leave off otherwise.",
+                "de": "Für ein Gerät, das Befehle quittiert, aber nicht ausführt, während es seinen Zustand normal meldet. Sendet Befehle so wie tinytuya und localtuya: mit der Geräte-ID im Feld uid und der Zeit als Text, so wie es die Statusabfrage schon tut. Nur Protokoll 3.1 bis 3.3 - 3.4 und 3.5 haben ein anderes Format und sind nicht betroffen. Beim Speichern verbindet das Gerät neu, es gilt also sofort. Sonst ausgeschaltet lassen."
               }
             }
           ]
@@ -28366,8 +28366,8 @@
                 "de": "Verbindungsbeginn aufzeichnen"
               },
               "hint": {
-                "en": "Writes every message exchanged with the device during the first 20 seconds of each connection to the log. For tracking down a device that does something when the app connects to it. Takes effect at the next connection — restart the app, or reconnect the device with its flow action. Leave off otherwise: it is verbose.",
-                "de": "Schreibt jede Nachricht, die in den ersten 20 Sekunden einer Verbindung mit dem Gerät ausgetauscht wird, ins Log. Zum Aufspüren eines Geräts, das etwas tut, sobald die App sich verbindet. Greift bei der nächsten Verbindung — die App neu starten oder das Gerät mit seiner Flow-Aktion neu verbinden. Sonst ausgeschaltet lassen: es ist ausführlich."
+                "en": "Writes every message exchanged with the device during the first 20 seconds of each connection to the log. For tracking down a device that does something when the app connects to it. Saving it reconnects the device, so the trace starts right away. Leave off otherwise: it is verbose.",
+                "de": "Schreibt jede Nachricht, die in den ersten 20 Sekunden einer Verbindung mit dem Gerät ausgetauscht wird, ins Log. Zum Aufspüren eines Geräts, das etwas tut, sobald die App sich verbindet. Beim Speichern verbindet das Gerät neu, die Aufzeichnung beginnt also sofort. Sonst ausgeschaltet lassen: es ist ausführlich."
               }
             },
             {
@@ -28379,8 +28379,8 @@
                 "de": "Alternatives Befehlsformat"
               },
               "hint": {
-                "en": "For a device that acknowledges commands but does not carry them out, while it reports its state normally. Sends commands the way tinytuya and localtuya do: with the device ID in the uid field and the time as text, as the status request already does. Protocol 3.1 to 3.3 only - 3.4 and 3.5 use a different format and are not affected. Takes effect at the next connection. Leave off otherwise.",
-                "de": "Für ein Gerät, das Befehle quittiert, aber nicht ausführt, während es seinen Zustand normal meldet. Sendet Befehle so wie tinytuya und localtuya: mit der Geräte-ID im Feld uid und der Zeit als Text, so wie es die Statusabfrage schon tut. Nur Protokoll 3.1 bis 3.3 - 3.4 und 3.5 haben ein anderes Format und sind nicht betroffen. Greift bei der nächsten Verbindung. Sonst ausgeschaltet lassen."
+                "en": "For a device that acknowledges commands but does not carry them out, while it reports its state normally. Sends commands the way tinytuya and localtuya do: with the device ID in the uid field and the time as text, as the status request already does. Protocol 3.1 to 3.3 only - 3.4 and 3.5 use a different format and are not affected. Saving it reconnects the device, so it applies at once. Leave off otherwise.",
+                "de": "Für ein Gerät, das Befehle quittiert, aber nicht ausführt, während es seinen Zustand normal meldet. Sendet Befehle so wie tinytuya und localtuya: mit der Geräte-ID im Feld uid und der Zeit als Text, so wie es die Statusabfrage schon tut. Nur Protokoll 3.1 bis 3.3 - 3.4 und 3.5 haben ein anderes Format und sind nicht betroffen. Beim Speichern verbindet das Gerät neu, es gilt also sofort. Sonst ausgeschaltet lassen."
               }
             }
           ]
@@ -29054,8 +29054,8 @@
                 "de": "Verbindungsbeginn aufzeichnen"
               },
               "hint": {
-                "en": "Writes every message exchanged with the device during the first 20 seconds of each connection to the log. For tracking down a device that does something when the app connects to it. Takes effect at the next connection — restart the app, or reconnect the device with its flow action. Leave off otherwise: it is verbose.",
-                "de": "Schreibt jede Nachricht, die in den ersten 20 Sekunden einer Verbindung mit dem Gerät ausgetauscht wird, ins Log. Zum Aufspüren eines Geräts, das etwas tut, sobald die App sich verbindet. Greift bei der nächsten Verbindung — die App neu starten oder das Gerät mit seiner Flow-Aktion neu verbinden. Sonst ausgeschaltet lassen: es ist ausführlich."
+                "en": "Writes every message exchanged with the device during the first 20 seconds of each connection to the log. For tracking down a device that does something when the app connects to it. Saving it reconnects the device, so the trace starts right away. Leave off otherwise: it is verbose.",
+                "de": "Schreibt jede Nachricht, die in den ersten 20 Sekunden einer Verbindung mit dem Gerät ausgetauscht wird, ins Log. Zum Aufspüren eines Geräts, das etwas tut, sobald die App sich verbindet. Beim Speichern verbindet das Gerät neu, die Aufzeichnung beginnt also sofort. Sonst ausgeschaltet lassen: es ist ausführlich."
               }
             },
             {
@@ -29067,8 +29067,8 @@
                 "de": "Alternatives Befehlsformat"
               },
               "hint": {
-                "en": "For a device that acknowledges commands but does not carry them out, while it reports its state normally. Sends commands the way tinytuya and localtuya do: with the device ID in the uid field and the time as text, as the status request already does. Protocol 3.1 to 3.3 only - 3.4 and 3.5 use a different format and are not affected. Takes effect at the next connection. Leave off otherwise.",
-                "de": "Für ein Gerät, das Befehle quittiert, aber nicht ausführt, während es seinen Zustand normal meldet. Sendet Befehle so wie tinytuya und localtuya: mit der Geräte-ID im Feld uid und der Zeit als Text, so wie es die Statusabfrage schon tut. Nur Protokoll 3.1 bis 3.3 - 3.4 und 3.5 haben ein anderes Format und sind nicht betroffen. Greift bei der nächsten Verbindung. Sonst ausgeschaltet lassen."
+                "en": "For a device that acknowledges commands but does not carry them out, while it reports its state normally. Sends commands the way tinytuya and localtuya do: with the device ID in the uid field and the time as text, as the status request already does. Protocol 3.1 to 3.3 only - 3.4 and 3.5 use a different format and are not affected. Saving it reconnects the device, so it applies at once. Leave off otherwise.",
+                "de": "Für ein Gerät, das Befehle quittiert, aber nicht ausführt, während es seinen Zustand normal meldet. Sendet Befehle so wie tinytuya und localtuya: mit der Geräte-ID im Feld uid und der Zeit als Text, so wie es die Statusabfrage schon tut. Nur Protokoll 3.1 bis 3.3 - 3.4 und 3.5 haben ein anderes Format und sind nicht betroffen. Beim Speichern verbindet das Gerät neu, es gilt also sofort. Sonst ausgeschaltet lassen."
               }
             }
           ]

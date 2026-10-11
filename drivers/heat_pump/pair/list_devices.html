@@ -128,7 +128,19 @@
         document.getElementById('device-name').textContent = this.value || defaultName;
       });
 
-      var hp = (typeof Homey !== 'undefined' && Homey.__('pair.list_devices.heat_pump')) || {};
+      // Je Beschriftung ein eigener Schluessel. Was Homey.__ fuer einen Schluessel
+      // liefert, der auf eine ganze Gruppe zeigt, ist nicht festgelegt - lieferte es
+      // nicht die Gruppe, fiel jede Zeile still auf Englisch zurueck.
+      var hpText = function (k) { return typeof Homey !== 'undefined' ? Homey.__(k) : ''; };
+      var hp = {
+        onoff:       hpText('pair.list_devices.heat_pump.onoff'),
+        targetTemp:  hpText('pair.list_devices.heat_pump.targetTemp'),
+        currentTemp: hpText('pair.list_devices.heat_pump.currentTemp'),
+        mode:        hpText('pair.list_devices.heat_pump.mode'),
+        preset:      hpText('pair.list_devices.heat_pump.preset'),
+        fault:       hpText('pair.list_devices.heat_pump.fault'),
+        powerLevel:  hpText('pair.list_devices.heat_pump.powerLevel'),
+      };
       var rowDefs = [
         ['onoff',       'dp_onoff',       s.dp_onoff        != null ? s.dp_onoff        : 1,  hp.onoff       || 'On / Off'],
         ['targettemp',  'dp_target_temp', s.dp_target_temp  != null ? s.dp_target_temp  : 2,  hp.targetTemp  || 'Target Temperature'],
