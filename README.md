@@ -65,7 +65,7 @@ when adding a device.
 - **Energy dashboard integration** — drivers that measure power feed Homey's energy dashboard; the EV Charger additionally exposes `target_power` so Homey's energy management can steer the charge rate (e.g. solar-surplus charging)
 - **Inline DP editor** — every DP number can be adjusted in the pairing screen before adding the device
 - **Optional capabilities** — tiles are added or removed dynamically based on your DP settings; set a DP to `0` to hide the tile
-- **Live credential updates** — change IP address, Local Key or Protocol Version directly in device settings at any time without re-pairing
+- **Live settings** — change IP address, Local Key, Protocol Version or any other setting in the device settings without re-pairing; it takes effect when you press Save. Homey stores new settings only after the app has handled them, and the app used to read the stored ones while applying a change — so a changed IP first reconnected to the old address, a data point set from `0` to a number got no tile, and a new power-on behaviour was sent as the previous one. The app now applies the values just entered. A change saved while a connection is still being set up is applied as soon as that attempt ends
 - **Computed energy metering** — kWh accumulated from live power readings using trapezoidal integration; persisted across restarts
 - **Push notifications** — Homey notifications for water tank events, fault alarms and other device alerts
 - **Efficient polling** — alternates between full GET and lightweight dp_refresh to reduce traffic
