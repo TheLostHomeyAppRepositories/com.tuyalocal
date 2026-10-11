@@ -194,6 +194,15 @@
   <button id="addBtn" disabled>Add Device</button>
 
   <script>
+    // Was von aussen kommt - ein Scan-Broadcast, die Cloud-Liste, die Werte des Geraets -
+    // geht nur maskiert ins HTML. Die Geraete-ID im Scan stammt aus einem UDP-Broadcast,
+    // den jeder Rechner im Netz faelschen kann, und diese Ansicht kann Cloud-Zugangsdaten
+    // und lokale Schluessel abrufen.
+    function escHtml(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+      });
+    }
     var pendingDevice = null;
 
     function initText() {
@@ -218,7 +227,7 @@
     function valBadge(dps, dp) {
       var dpNum = parseInt(dp);
       if (!dpNum || !(String(dpNum) in dps)) return '<span class="no-val">—</span>';
-      return '<span class="val-badge">' + String(dps[String(dpNum)]) + '</span>';
+      return '<span class="val-badge">' + escHtml(String(dps[String(dpNum)])) + '</span>';
     }
 
     var devicesResult = null;
@@ -251,11 +260,14 @@
 
       // rowDefs: [rowKey, settingKey, initialDp, label]
       var rowDefs = [
-        ['portions',    'dp_portions',      s.dp_portions      || 3,  Homey.__('pair.list_devices.pet_feeder.portions')      || 'Portions (DP 3, manual_feed)'],
-        ['motor',       'dp_motor_state',   s.dp_motor_state   || 4,  Homey.__('pair.list_devices.pet_feeder.motorState')    || 'Feed State (DP 4)'],
-        ['fault',       'dp_fault',         s.dp_fault         || 14, Homey.__('pair.list_devices.pet_feeder.fault')         || 'Fault Alarm (DP 14, 0 = disabled)'],
-        ['feedreport',  'dp_feed_report',   s.dp_feed_report   || 15, Homey.__('pair.list_devices.pet_feeder.feedReport')    || 'Feed Report (DP 15, 0 = disabled)'],
-        ['surplus',     'dp_surplus_grain', s.dp_surplus_grain || 16, Homey.__('pair.list_devices.pet_feeder.surplusGrain')  || 'Remaining Food % (DP 16, 0 = disabled)'],
+        // != null statt ||: eine erkannte 0 heisst "gibt es nicht" und darf nicht auf die
+        // Vorgabe zurueckfallen - sonst entsteht eine tote Kachel fuer einen DP, den das
+        // Geraet nicht hat. Fehlt der Wert ganz, gilt die Vorgabe wie bisher.
+        ['portions',    'dp_portions',      (s.dp_portions != null ? s.dp_portions : 3),  Homey.__('pair.list_devices.pet_feeder.portions')      || 'Portions (DP 3, manual_feed)'],
+        ['motor',       'dp_motor_state',   (s.dp_motor_state != null ? s.dp_motor_state : 4),  Homey.__('pair.list_devices.pet_feeder.motorState')    || 'Feed State (DP 4)'],
+        ['fault',       'dp_fault',         (s.dp_fault != null ? s.dp_fault : 14), Homey.__('pair.list_devices.pet_feeder.fault')         || 'Fault Alarm (DP 14, 0 = disabled)'],
+        ['feedreport',  'dp_feed_report',   (s.dp_feed_report != null ? s.dp_feed_report : 15), Homey.__('pair.list_devices.pet_feeder.feedReport')    || 'Feed Report (DP 15, 0 = disabled)'],
+        ['surplus',     'dp_surplus_grain', (s.dp_surplus_grain != null ? s.dp_surplus_grain : 16), Homey.__('pair.list_devices.pet_feeder.surplusGrain')  || 'Remaining Food % (DP 16, 0 = disabled)'],
         ['food',        'dp_food_level',    s.dp_food_level    || 0,  Homey.__('pair.list_devices.pet_feeder.foodLevel')     || 'Food Level DP (non-standard, 0 = disabled)'],
         ['childlock',   'dp_child_lock',    s.dp_child_lock    || 0,  Homey.__('pair.list_devices.pet_feeder.childLock')     || 'Child Lock (non-standard, 0 = disabled)'],
       ];
@@ -315,7 +327,7 @@
           var assigned = assignedMap[dp] ? '<span class="raw-assigned">→ ' + assignedMap[dp] + '</span>' : '';
           return '<tr>' +
             '<td><span class="raw-dp">DP ' + dp + '</span></td>' +
-            '<td><span class="val-badge">' + String(val) + '</span></td>' +
+            '<td><span class="val-badge">' + escHtml(String(val)) + '</span></td>' +
             '<td>' + assigned + '</td>' +
             '</tr>';
         }).join('');

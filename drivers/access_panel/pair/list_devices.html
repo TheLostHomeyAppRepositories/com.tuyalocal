@@ -154,6 +154,15 @@
   <button id="addBtn" disabled>Add Device</button>
 
   <script>
+    // Was von aussen kommt - ein Scan-Broadcast, die Cloud-Liste, die Werte des Geraets -
+    // geht nur maskiert ins HTML. Die Geraete-ID im Scan stammt aus einem UDP-Broadcast,
+    // den jeder Rechner im Netz faelschen kann, und diese Ansicht kann Cloud-Zugangsdaten
+    // und lokale Schluessel abrufen.
+    function escHtml(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+      });
+    }
     var pendingDevice = null;
 
     function initText() {
@@ -180,7 +189,7 @@
       if (!dpNum || !(String(dpNum) in dps)) return '<span class="no-val">—</span>';
       var val = String(dps[String(dpNum)]);
       if (val.length > 32) val = val.slice(0, 32) + '…';
-      return '<span class="val-badge">' + val + '</span>';
+      return '<span class="val-badge">' + escHtml(val) + '</span>';
     }
 
     var devicesResult = null;
@@ -271,7 +280,7 @@
           if (valStr.length > 32) valStr = valStr.slice(0, 32) + '…';
           var assigned = assignedMap[dp] ? '<span class="raw-assigned">→ ' + assignedMap[dp] + '</span>' : '';
           return '<tr><td><span class="raw-dp">DP ' + dp + '</span></td>' +
-            '<td><span class="val-badge">' + valStr + '</span></td>' +
+            '<td><span class="val-badge">' + escHtml(valStr) + '</span></td>' +
             '<td>' + assigned + '</td></tr>';
         }).join('');
         document.getElementById('rawContent').innerHTML =

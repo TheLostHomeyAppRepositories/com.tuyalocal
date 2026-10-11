@@ -6,7 +6,7 @@ const { setupCloudLookup } = require('../../lib/pairCloudLookup');
 const { describeConnectFailure } = require('../../lib/connectFailure');
 const { detectProtocolVersion } = require('../../lib/autoDetect');
 const { scanNetwork }           = require('../../lib/networkScan');
-const { detectViaCloud, guessedDefaults, shiftedEnergyBlock } = require('../../lib/dpCodeMap');
+const { detectViaCloud, guessedDefaults, dpVorgaben, shiftedEnergyBlock } = require('../../lib/dpCodeMap');
 const { fehlertext } = require('../../lib/utils.js');
 
 // Maps this driver's settings keys to the Tuya cloud "code" names that
@@ -149,7 +149,7 @@ class SmartPlugDriver extends Homey.Driver {
           // packed voltage/current/power values usually live.
           try { device.refresh(); } catch (_) {}
           await new Promise((resolve) => setTimeout(resolve, 2000));
-          device.disconnect();
+          device.verwerfen();
           pairingDevice = null;
           rawDps = tmpDps;
         }
@@ -164,7 +164,7 @@ class SmartPlugDriver extends Homey.Driver {
       } catch (err) {
         connected = false;
         failureError = err.message;
-        try { if (pairingDevice) pairingDevice.disconnect(); } catch (_e) {}
+        try { if (pairingDevice) pairingDevice.verwerfen(); } catch (_e) {}
         this.log('Connection test failed:', err.message);
       }
 
@@ -178,6 +178,8 @@ class SmartPlugDriver extends Homey.Driver {
           version:          actualVersion,
           power_scale:      '0.1',
           polling_interval: 30,
+          // Erst die Vorgaben aus dem Manifest, dann was erkannt wurde - siehe dpVorgaben.
+          ...dpVorgaben(this),
           ...(detectedDps || {}),
         },
       };

@@ -6,7 +6,7 @@ const { setupCloudLookup } = require('../../lib/pairCloudLookup');
 const { describeConnectFailure } = require('../../lib/connectFailure');
 const { detectProtocolVersion } = require('../../lib/autoDetect');
 const { scanNetwork }           = require('../../lib/networkScan');
-const { detectViaCloud, guessedDefaults }        = require('../../lib/dpCodeMap');
+const { detectViaCloud, guessedDefaults, dpVorgaben }        = require('../../lib/dpCodeMap');
 
 // Maps this driver's settings keys to the Tuya cloud "code" names that
 // commonly represent them. See lib/dpCodeMap.js.
@@ -134,7 +134,7 @@ class KettleDriver extends Homey.Driver {
           // packed voltage/current/power values usually live.
           try { device.refresh(); } catch (_) {}
           await new Promise((resolve) => setTimeout(resolve, 2000));
-          device.disconnect();
+          device.verwerfen();
           pairingDevice = null;
           rawDps = tmpDps;
         }
@@ -148,7 +148,7 @@ class KettleDriver extends Homey.Driver {
       } catch (err) {
         connected = false;
         failureError = err.message;
-        try { if (pairingDevice) pairingDevice.disconnect(); } catch (_e) {}
+        try { if (pairingDevice) pairingDevice.verwerfen(); } catch (_e) {}
       }
 
       pendingDevice = {
@@ -160,6 +160,8 @@ class KettleDriver extends Homey.Driver {
           local_key:        localKey,
           version:          actualVersion,
           polling_interval: 10,
+          // Erst die Vorgaben aus dem Manifest, dann was erkannt wurde - siehe dpVorgaben.
+          ...dpVorgaben(this),
           ...(detectedDps || {}),
         },
       };

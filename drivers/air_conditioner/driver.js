@@ -246,7 +246,7 @@ class AirConditionerDriver extends Homey.Driver {
           // packed voltage/current/power values usually live.
           try { device.refresh(); } catch (_) {}
           await new Promise((resolve) => setTimeout(resolve, 2000));
-          device.disconnect();
+          device.verwerfen();
           pairingDevice = null;
           rawDps = tmpDps;
         }
@@ -264,7 +264,7 @@ class AirConditionerDriver extends Homey.Driver {
       } catch (err) {
         connected = false;
         failureError = err.message;
-        try { if (pairingDevice) pairingDevice.disconnect(); } catch (_e) {}
+        try { if (pairingDevice) pairingDevice.verwerfen(); } catch (_e) {}
         this.log('Connection test failed:', err.message);
       }
 

@@ -195,6 +195,15 @@
   <button id="addBtn" disabled>Add Device</button>
 
   <script>
+    // Was von aussen kommt - ein Scan-Broadcast, die Cloud-Liste, die Werte des Geraets -
+    // geht nur maskiert ins HTML. Die Geraete-ID im Scan stammt aus einem UDP-Broadcast,
+    // den jeder Rechner im Netz faelschen kann, und diese Ansicht kann Cloud-Zugangsdaten
+    // und lokale Schluessel abrufen.
+    function escHtml(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+      });
+    }
     var pendingDevice = null;
 
     function initText() {
@@ -219,7 +228,7 @@
     function valBadge(dps, dp) {
       var dpNum = parseInt(dp);
       if (!dpNum || !(String(dpNum) in dps)) return '<span class="no-val">—</span>';
-      return '<span class="val-badge">' + String(dps[String(dpNum)]) + '</span>';
+      return '<span class="val-badge">' + escHtml(String(dps[String(dpNum)])) + '</span>';
     }
 
     var devicesResult = null;
@@ -254,11 +263,14 @@
       var rowDefs = [
         // ── Core ─────────────────────────────────────────────────────────────
         ['__hdr_core', null, null, L('pair.list_devices.ac.sectionCore') || '— Core —'],
-        ['onoff',    'dp_onoff',           s.dp_onoff           || 1,  L('pair.list_devices.onoff')                   || 'On / Off'],
-        ['ttemp',    'dp_target_temp',     s.dp_target_temp     || 2,  L('pair.list_devices.ac.targetTemp')           || 'Target Temperature'],
-        ['ctemp',    'dp_current_temp',    s.dp_current_temp    || 3,  L('pair.list_devices.ac.currentTemp')          || 'Current Temperature'],
-        ['mode',     'dp_mode',            s.dp_mode            || 4,  L('pair.list_devices.mode')                    || 'Mode'],
-        ['fan',      'dp_fan_speed',       s.dp_fan_speed       || 5,  L('pair.list_devices.fanSpeed')                || 'Fan Speed'],
+        // != null statt ||: eine erkannte 0 heisst "gibt es nicht" und darf nicht auf die
+        // Vorgabe zurueckfallen - sonst entsteht eine tote Kachel fuer einen DP, den das
+        // Geraet nicht hat. Fehlt der Wert ganz, gilt die Vorgabe wie bisher.
+        ['onoff',    'dp_onoff',           (s.dp_onoff != null ? s.dp_onoff : 1),  L('pair.list_devices.onoff')                   || 'On / Off'],
+        ['ttemp',    'dp_target_temp',     (s.dp_target_temp != null ? s.dp_target_temp : 2),  L('pair.list_devices.ac.targetTemp')           || 'Target Temperature'],
+        ['ctemp',    'dp_current_temp',    (s.dp_current_temp != null ? s.dp_current_temp : 3),  L('pair.list_devices.ac.currentTemp')          || 'Current Temperature'],
+        ['mode',     'dp_mode',            (s.dp_mode != null ? s.dp_mode : 4),  L('pair.list_devices.mode')                    || 'Mode'],
+        ['fan',      'dp_fan_speed',       (s.dp_fan_speed != null ? s.dp_fan_speed : 5),  L('pair.list_devices.fanSpeed')                || 'Fan Speed'],
         // ── Optional ──────────────────────────────────────────────────────────
         ['__hdr_opt', null, null, L('pair.list_devices.ac.sectionOptional') || '— Optional (0 = disabled) —'],
         ['swing',    'dp_swing',           s.dp_swing           || 0,  L('pair.list_devices.ac.swing')                || 'Swing / Louver'],
@@ -267,7 +279,7 @@
         ['lock',     'dp_child_lock',      s.dp_child_lock      || 0,  L('pair.list_devices.childLock')               || 'Child Lock'],
         ['timer',    'dp_countdown_timer', s.dp_countdown_timer || 0,  L('pair.list_devices.timer')                   || 'Timer'],
         ['left',     'dp_countdown_left',  s.dp_countdown_left  || 0,  L('pair.list_devices.timerLeft')               || 'Timer remaining'],
-        ['fault',    'dp_fault',           s.dp_fault           || 20, L('pair.list_devices.ac.fault')                || 'Fault Alarm'],
+        ['fault',    'dp_fault',           (s.dp_fault != null ? s.dp_fault : 20), L('pair.list_devices.ac.fault')                || 'Fault Alarm'],
       ];
 
       var tbody = document.getElementById('dp-tbody');
@@ -325,7 +337,7 @@
           var assigned = assignedMap[dp] ? '<span class="raw-assigned">→ ' + assignedMap[dp] + '</span>' : '';
           return '<tr>' +
             '<td><span class="raw-dp">DP ' + dp + '</span></td>' +
-            '<td><span class="val-badge">' + String(val) + '</span></td>' +
+            '<td><span class="val-badge">' + escHtml(String(val)) + '</span></td>' +
             '<td>' + assigned + '</td>' +
             '</tr>';
         }).join('');

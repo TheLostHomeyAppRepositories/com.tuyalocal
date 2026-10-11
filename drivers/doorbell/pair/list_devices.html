@@ -154,6 +154,15 @@
   <button id="addBtn" disabled>Add Device</button>
 
   <script>
+    // Was von aussen kommt - ein Scan-Broadcast, die Cloud-Liste, die Werte des Geraets -
+    // geht nur maskiert ins HTML. Die Geraete-ID im Scan stammt aus einem UDP-Broadcast,
+    // den jeder Rechner im Netz faelschen kann, und diese Ansicht kann Cloud-Zugangsdaten
+    // und lokale Schluessel abrufen.
+    function escHtml(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+      });
+    }
     var pendingDevice = null;
 
     function initText() {
@@ -180,7 +189,7 @@
       if (!dpNum || !(String(dpNum) in dps)) return '<span class="no-val">—</span>';
       var val = String(dps[String(dpNum)]);
       if (val.length > 32) val = val.slice(0, 32) + '…';
-      return '<span class="val-badge">' + val + '</span>';
+      return '<span class="val-badge">' + escHtml(val) + '</span>';
     }
 
     var devicesResult = null;
@@ -213,17 +222,20 @@
 
       var rowDefs = [
         ['__hdr_events', null, null, 'Event DPs (read-only)'],
-        ['doorbell',  'dp_doorbell',          s.dp_doorbell          || 136, 'Doorbell Ring'],
-        ['motion',    'dp_motion_event',       s.dp_motion_event       || 115, 'Motion Detected'],
+        // != null statt ||: eine erkannte 0 heisst "gibt es nicht" und darf nicht auf die
+        // Vorgabe zurueckfallen - sonst entsteht eine tote Kachel fuer einen DP, den das
+        // Geraet nicht hat. Fehlt der Wert ganz, gilt die Vorgabe wie bisher.
+        ['doorbell',  'dp_doorbell',          (s.dp_doorbell != null ? s.dp_doorbell : 136), 'Doorbell Ring'],
+        ['motion',    'dp_motion_event',       (s.dp_motion_event != null ? s.dp_motion_event : 115), 'Motion Detected'],
         ['alarmmsg',  'dp_alarm_message',      s.dp_alarm_message      || 0,   'Alarm Message (0 = disabled)'],
         ['__hdr_ctrl', null, null, 'Control DPs (0 = disabled)'],
-        ['mswitch',   'dp_motion_switch',      s.dp_motion_switch      || 134, 'Motion Detection Switch'],
-        ['msens',     'dp_motion_sensitivity', s.dp_motion_sensitivity || 106, 'Motion Sensitivity'],
-        ['nightvis',  'dp_nightvision',        s.dp_nightvision        || 108, 'Night Vision'],
-        ['indicator', 'dp_indicator',          s.dp_indicator          || 101, 'Status LED'],
-        ['recording', 'dp_recording',          s.dp_recording          || 150, 'SD Recording'],
-        ['chimevol',  'dp_chime_volume',       s.dp_chime_volume       || 157, 'Chime Volume'],
-        ['devvol',    'dp_device_volume',      s.dp_device_volume      || 160, 'Device Volume'],
+        ['mswitch',   'dp_motion_switch',      (s.dp_motion_switch != null ? s.dp_motion_switch : 134), 'Motion Detection Switch'],
+        ['msens',     'dp_motion_sensitivity', (s.dp_motion_sensitivity != null ? s.dp_motion_sensitivity : 106), 'Motion Sensitivity'],
+        ['nightvis',  'dp_nightvision',        (s.dp_nightvision != null ? s.dp_nightvision : 108), 'Night Vision'],
+        ['indicator', 'dp_indicator',          (s.dp_indicator != null ? s.dp_indicator : 101), 'Status LED'],
+        ['recording', 'dp_recording',          (s.dp_recording != null ? s.dp_recording : 150), 'SD Recording'],
+        ['chimevol',  'dp_chime_volume',       (s.dp_chime_volume != null ? s.dp_chime_volume : 157), 'Chime Volume'],
+        ['devvol',    'dp_device_volume',      (s.dp_device_volume != null ? s.dp_device_volume : 160), 'Device Volume'],
       ];
 
       var tbody = document.getElementById('dp-tbody');
@@ -271,7 +283,7 @@
           if (valStr.length > 32) valStr = valStr.slice(0, 32) + '…';
           var assigned = assignedMap[dp] ? '<span class="raw-assigned">→ ' + assignedMap[dp] + '</span>' : '';
           return '<tr><td><span class="raw-dp">DP ' + dp + '</span></td>' +
-            '<td><span class="val-badge">' + valStr + '</span></td>' +
+            '<td><span class="val-badge">' + escHtml(valStr) + '</span></td>' +
             '<td>' + assigned + '</td></tr>';
         }).join('');
         document.getElementById('rawContent').innerHTML =
