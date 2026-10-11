@@ -252,7 +252,7 @@ Same settings as Dehumidifier (IP, Device ID, Local Key, Protocol Version, Polli
 
 Most Tuya plugs send the energy counter (DP 17, `add_ele`) as a **resetting delta** — the Tuya cloud accumulates the deltas into a lifetime total, but locally the value appears frozen.
 
-When `dp_energy = 0` (default), the app computes kWh itself by integrating live power readings using **trapezoidal averaging** — the mean of the previous and current power reading multiplied by elapsed time. The result is monotonically increasing and persisted across app restarts.
+When `dp_energy = 0` (default), the app computes kWh itself by integrating live power readings using **trapezoidal averaging** — the mean of the previous and current power reading multiplied by elapsed time. The result is monotonically increasing and persisted across app restarts. It is added up every polling cycle, and every 30 s when Polling Interval is 0 — the device is then not asked for anything, but the count goes on.
 
 Set `dp_energy = 17` only if your device provides a reliable cumulative local energy counter.
 

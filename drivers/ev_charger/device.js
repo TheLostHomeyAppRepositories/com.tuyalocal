@@ -845,14 +845,17 @@ class EvChargerDevice extends BaseTuyaDevice {
    * poll timer so that steady power still accumulates even though an unchanged DP
    * value is filtered out before it reaches _handleDps.
    */
-  async _onPollTick() {
+  async _onPollTick({ abfragen = true } = {}) {
     // Voltage, current and power live in the packed phase DP, which most chargers
     // send only in reply to a refresh request. The base polling loop alternates
     // between a full query and a refresh, which would halve the update rate for
     // exactly those values — so ask for a refresh on every tick as well. Overlapping
     // requests are suppressed by the connection's own in-flight guard.
-    if ((this.getSetting('dp_phase_a') ?? 0) > 0
-        || (this.getSetting('dp_phase_json') ?? 0) > 0) {
+    //
+    // Nicht mit Abfragetakt 0: dann laeuft der Takt nur noch fuer die Energie unten,
+    // und gefragt wird beim Geraet nichts.
+    if (abfragen && ((this.getSetting('dp_phase_a') ?? 0) > 0
+        || (this.getSetting('dp_phase_json') ?? 0) > 0)) {
       this.refreshDps().catch(() => {});
     }
 
