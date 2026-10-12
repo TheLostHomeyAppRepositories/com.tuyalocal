@@ -19,6 +19,8 @@ const LOG_MAX = 500;
 // dass die Sektion auch im schlimmsten Fall kurz genug bleibt, um mitgeschickt statt
 // abgeschnitten zu werden.
 const BUNDLE_LOG_MAX = 120;
+// Wie viele Zeilen der Verbindungs-Spur der Support-Bericht fuehrt - siehe addSpur.
+const SPUR_MAX = 200;
 // Wie viele der LOG_MAX Plaetze Warnungen, Fehler und gekennzeichnete Ereignisse
 // hoechstens belegen duerfen. Ohne diesen Deckel koennten sie ueber Monate alle 500
 // Plaetze fuellen, und der Logs-Reiter der App - der denselben Puffer liest - zeigte
@@ -72,6 +74,7 @@ const UNTERGERAET_OHNE_CLOUD = 'behind a gateway \u2014 not looked up: its setti
 class TuyaLocalApp extends Homey.App {
   async onInit() {
     this._logs = [];
+    this._spur = [];
     this._flushTimer = null;
     // Wann dieser App-Lauf begann. Die Verbindungszahlen im Support-Bericht zaehlen ab
     // hier, und ohne diese Angabe lesen sie sich falsch: "1 connection, up 9s" neben
@@ -202,6 +205,23 @@ class TuyaLocalApp extends Homey.App {
       return ' — likely protocol version mismatch. Use Auto-detect in the device Repair screen.';
     }
     return '';
+  }
+
+  /**
+   * Eine Zeile der Verbindungs-Spur ("Record connection start"), fuer den Support-Bericht.
+   *
+   * Die Spur stand nur im Protokoll, als info, und der Bericht nimmt von dort nur
+   * Warnungen, Fehler und ausdruecklich Markiertes. Wer die Aufzeichnung einschaltete
+   * und den Bericht schickte, schickte alles ausser der Aufzeichnung. Markiert haette sie
+   * dort mit den Warnungen um denselben Platz gekaempft: ein Geraet, das alle zwei
+   * Minuten neu verbindet, schreibt mit eingeschalteter Spur einige hundert Zeilen in
+   * der Stunde. Darum ein eigener Speicher mit den letzten SPUR_MAX Zeilen, nicht
+   * gespeichert - nach einem Neustart zeichnet die Spur ohnehin neu auf.
+   */
+  addSpur(source, message) {
+    if (!Array.isArray(this._spur)) this._spur = [];
+    this._spur.push({ time: new Date().toISOString(), source: String(source), message: String(message) });
+    if (this._spur.length > SPUR_MAX) this._spur.splice(0, this._spur.length - SPUR_MAX);
   }
 
   /**
@@ -655,6 +675,16 @@ class TuyaLocalApp extends Homey.App {
     for (const l of logLines) out.push('  ' + l);
     if (gefaltet.length > gezeigt.length) {
       out.push(`  … ${gefaltet.length - gezeigt.length} older message(s) not shown.`);
+    }
+
+    // Die Verbindungs-Spur, in ihrer eigenen Reihenfolge: sie erzaehlt einen Ablauf.
+    const spur = Array.isArray(this._spur) ? this._spur : [];
+    if (spur.length) {
+      out.push('');
+      out.push('TRACE — Record connection start: every frame of the first seconds of a connection, oldest first');
+      out.push(`  ${spur.length} line${spur.length === 1 ? '' : 's'} (the last ${SPUR_MAX} at most). `
+        + '→ was sent, ← was received; return code 0 means the device took the request.');
+      for (const z of spur) out.push(`  ${z.time}  [${z.source}]  ${z.message}`);
     }
 
     return {
