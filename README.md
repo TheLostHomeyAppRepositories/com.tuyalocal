@@ -2946,6 +2946,7 @@ Fetch device credentials and DP specifications from the Tuya IoT Platform (avail
 | Humidifier water alarm fires on connect | Device sends transient alarm on reconnect | Built-in debounce suppresses these; if they persist increase the alarm guard window |
 | Spurious fault alarm after reconnect | Reconnect artifact | Built-in 30 s grace period on reconnect suppresses these (AC, Heater, Heat Pump) |
 | Heat pump mode/preset picker does nothing | DP was enabled after initial pairing — listener not registered | Restart the Tuya Local app; the listener is re-registered on next `onInit` |
+| Pet feeder dispenses food on its own after a restart or reconnect | A command reaches it through Homey - the app never feeds by itself | Check the log: every feed command is written there with the way it came in (the **Feed now** flow card or the portions picker) and how soon after connecting. One that arrives right after the connection came up usually comes from a flow that starts when the feeder connects |
 | Pet feeder sends 3–4 "disconnected" notifications per night | Tuya firmware briefly drops TCP connection at timed intervals | Increase **Offline Grace Period** in device settings (default 60 s already handles most cases; try 120 s if it still fires) |
 | Generic device shows raw key as label | Missing locale key | Set labels via the `label` field in the dp_config mapping |
 | Curtain position slider is inverted | Device uses 0 = open, 100 = closed | Enable `invert_position` in device settings |

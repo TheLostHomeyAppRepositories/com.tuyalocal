@@ -63,6 +63,9 @@ const FEED_REPORT_CONNECT_GRACE_MS = 15000;
 // Devices that report both a terminal motor state and a feed report would fire the
 // trigger twice for one feed. Whichever arrives first wins, the other is ignored.
 const FEEDING_DONE_COOLDOWN_MS = 10000;
+// Ein Fuetterungsbefehl so kurz nach dem Verbinden wird als Warnung protokolliert -
+// siehe _meldeFuetterung.
+const FUETTERUNG_NACH_VERBINDEN_MS = 5000;
 
 class PetFeederDevice extends BaseTuyaDevice {
   async onInit() {
@@ -128,6 +131,8 @@ class PetFeederDevice extends BaseTuyaDevice {
         // delayed 3 s to let the device process the command first. The capability is
         // an enum — values are strings; send as Number to the device.
         register('feed_portions', async (value) => {
+          this._meldeFuetterung(Number(value), 'the portions picker (the tile, the Homey app, a voice '
+            + 'assistant, or a flow that sets the picker)');
           await this._set(this.getSetting('dp_portions'), Number(value));
           this._portionenZuruecksetzen();
         });
@@ -323,6 +328,34 @@ class PetFeederDevice extends BaseTuyaDevice {
   // â”€â”€ Homey lifecycle â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   // â”€â”€ Portions picker range â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  /**
+   * Schreibt jeden Fuetterungsbefehl ins Protokoll, mit dem Weg, auf dem er kam.
+   *
+   * Gemeldet: der Futterautomat fuetterte bei jedem Verbindungsaufbau - nach einem
+   * Update, einem Neustart, einer geaenderten Einstellung. Die Verbindungsspur zeigte,
+   * dass 30 ms nach "verbunden" ein Befehl fuer eine Portion hinausging; die App selbst
+   * sendet beim Verbinden nie einen. Ein Befehl an die Fuetterung kommt nur ueber die
+   * Flow-Karte "Jetzt fuettern" oder ueber die Portionen-Auswahl, und welcher von beiden
+   * es war, stand nirgends. Jetzt steht es im Protokoll und im Support-Bericht, mit dem
+   * Abstand zum Verbindungsaufbau - so kurz danach als Warnung.
+   *
+   * @param {number} portionen
+   * @param {string} weg  Wie der Befehl kam, als Teil des Satzes.
+   */
+  _meldeFuetterung(portionen, weg) {
+    const seit = this._connectedAt ? Date.now() - this._connectedAt : null;
+    const dauer = (ms) => (ms < 10000 ? `${ms} ms`
+      : ms < 120000 ? `${Math.round(ms / 1000)} s`
+        : ms < 7200000 ? `${Math.round(ms / 60000)} min`
+          : `${Math.round(ms / 3600000)} h`);
+    const kurz = seit !== null && seit < FUETTERUNG_NACH_VERBINDEN_MS;
+    this._appLog(`Feed command: ${portionen} portion${portionen === 1 ? '' : 's'} via ${weg}`
+      + (seit !== null ? `, ${dauer(seit)} after connecting` : '')
+      + (kurz ? ' - right after the connection came up. A flow that starts when the feeder '
+        + 'connects would do exactly this.' : ''),
+    kurz ? 'warn' : 'info', true);
+  }
+
   /** Die Auswahl nach einer Fuetterung zurueck auf portions_min, nach 3 s. */
   _portionenZuruecksetzen() {
     clearTimeout(this._portionsResetTimer);
@@ -361,6 +394,7 @@ class PetFeederDevice extends BaseTuyaDevice {
     if (!(dp > 0)) {
       throw new Error('No data point set for portions (dp_portions is 0) - set it in the device settings');
     }
+    this._meldeFuetterung(n, 'the "Feed now" flow card');
     await this._set(dp, n);
     if (this.hasCapability('feed_portions')) {
       await this.setCapabilityValue('feed_portions', String(n)).catch(() => {});
