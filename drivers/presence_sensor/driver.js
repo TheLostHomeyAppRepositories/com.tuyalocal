@@ -46,6 +46,8 @@ const CLOUD_CODE_MAP = {
   dp_motion_sensitivity: ['pir_sensitivity'],
   dp_motion_hold_time:   ['pir_delay'],
   dp_motion_enabled:     ['switch_pir'],
+  // Der Modus desselben Melders, auto / manual.
+  dp_device_mode:        ['device_mode'],
 };
 
 // Die Nachlaufzeit in der Einheit, in der das Geraet sie fuehrt. Tuya gibt den
@@ -82,7 +84,9 @@ class PresenceSensorDriver extends Homey.Driver {
     // Zweck der Einstellungen.
     const gross = (v) => v.charAt(0).toUpperCase() + v.slice(1).replace(/_/g, ' ');
     const vorschlag = (quelle) => async (query, args) => {
-      const werte = leseWerteliste(args.device.getSetting(quelle) || '').map((e) => e.id);
+      // Ueber das Geraet: eine Liste, die erst eine spaetere Version mitbrachte, ist
+      // auf einem bestehenden Melder leer, und die Vorschlaege waeren es auch.
+      const werte = leseWerteliste(args.device._werteliste(quelle)).map((e) => e.id);
       const q = String(query || '').toLowerCase();
       return werte.filter((v) => v.toLowerCase().includes(q))
         .map((v) => ({ id: v, name: gross(v) }));
@@ -91,6 +95,7 @@ class PresenceSensorDriver extends Homey.Driver {
     for (const [kennung, faehigkeit, arg, quelle] of [
       ['dusk_threshold', 'dusk_threshold', 'threshold', 'dusk_threshold_values'],
       ['motion_sensitivity', 'motion_sensitivity', 'sensitivity', 'motion_sensitivity_values'],
+      ['mode', 'sensor_mode', 'mode', 'device_mode_values'],
     ]) {
       this.homey.flow.getConditionCard(`presence_sensor_${kennung}_is`)
         .registerArgumentAutocompleteListener(arg, vorschlag(quelle))

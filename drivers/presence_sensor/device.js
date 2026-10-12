@@ -22,12 +22,13 @@ const DP_PROFILE = [
   { settingKey: 'dp_alarm',     capability: 'alarm_generic',      type: 'check',    settable: false },
   { settingKey: 'dp_distance',  capability: 'measure_distance',   type: 'number',   settable: false },
   { settingKey: 'dp_luminance', capability: 'measure_luminance',  type: 'number',   settable: false },
-  // Die vier Einstellbaren. Sie lesen wie alles andere und schreiben zusaetzlich
+  // Die fuenf Einstellbaren. Sie lesen wie alles andere und schreiben zusaetzlich
   // zurueck — siehe EINSTELLBAR und _registerListeners.
   { settingKey: 'dp_dusk_threshold',     capability: 'dusk_threshold',     type: 'auswahl',  settable: true },
   { settingKey: 'dp_motion_sensitivity', capability: 'motion_sensitivity', type: 'auswahl',  settable: true },
   { settingKey: 'dp_motion_hold_time',   capability: 'motion_hold_time',   type: 'nachlauf', settable: true },
   { settingKey: 'dp_motion_enabled',     capability: 'motion_enabled',     type: 'schalter', settable: true },
+  { settingKey: 'dp_device_mode',        capability: 'sensor_mode',        type: 'auswahl',  settable: true },
 ];
 
 // Wie verschiedene Firmware dasselbe sagt. "presence" ist die Tuya-Schreibweise,
@@ -43,17 +44,41 @@ const ABWESEND = new Set(['none', 'nobody', 'no_motion', 'false', '0', '']);
 const ENUM_QUELLE = {
   dusk_threshold:     'dusk_threshold_values',
   motion_sensitivity: 'motion_sensitivity_values',
+  sensor_mode:        'device_mode_values',
+};
+
+// Die Vorgaben der drei Wertelisten, wie im Manifest. Eine Einstellung, die eine
+// spaetere Version hinzufuegt, ist auf einem bestehenden Geraet null, nicht ihre
+// Vorgabe - siehe _werteliste.
+const WERTE_VORGABE = {
+  dusk_threshold_values:     '2000lux,300lux,50lux,10lux,5lux',
+  motion_sensitivity_values: 'low,middle,high',
+  device_mode_values:        'auto,manual',
+};
+
+// Wie das Token der Karte "... geaendert" je Auswahl heisst - so, wie es im
+// Manifest steht.
+const AUSWAHL_TOKEN = {
+  dusk_threshold:     'threshold',
+  motion_sensitivity: 'sensitivity',
+  sensor_mode:        'mode',
 };
 
 // Die vier Bedienelemente eines Melders, der mehr kann als melden: ab wann er bei
 // Helligkeit ueberhaupt reagiert, wie empfindlich er ist, wie lange er nach der
 // letzten Bewegung weiter meldet, und ob er ueberhaupt arbeitet. Alle vier sind am
 // gemeldeten Geraet einstellbar gewesen, und der Treiber hatte fuer keinen etwas.
+//
+// Dazu der Modus desselben Melders: auto / manual auf DP 51. In auto schaltet er
+// seine Erkennung ein paar Minuten nach dem Ausschalten von selbst wieder ein, und
+// ein Flow, der sie alle fuenf Minuten wieder ausschaltet, rennt dagegen an.
+// Umstellen liess er sich nur in der Tuya-App.
 const EINSTELLBAR = [
   { settingKey: 'dp_dusk_threshold',     capability: 'dusk_threshold',     art: 'enum' },
   { settingKey: 'dp_motion_sensitivity', capability: 'motion_sensitivity', art: 'enum' },
   { settingKey: 'dp_motion_hold_time',   capability: 'motion_hold_time',   art: 'nachlauf' },
   { settingKey: 'dp_motion_enabled',     capability: 'motion_enabled',     art: 'schalter' },
+  { settingKey: 'dp_device_mode',        capability: 'sensor_mode',        art: 'enum' },
 ];
 
 // Die Nachlaufzeit, in der Einheit des Geraets und in der der Kachel.
@@ -73,6 +98,7 @@ const OPTIONAL_CAPABILITIES = [
   { setting: 'dp_motion_sensitivity', capability: 'motion_sensitivity' },
   { setting: 'dp_motion_hold_time',   capability: 'motion_hold_time'   },
   { setting: 'dp_motion_enabled',     capability: 'motion_enabled'     },
+  { setting: 'dp_device_mode',        capability: 'sensor_mode'        },
   { setting: 'dp_alarm',     capability: 'alarm_generic'     },
   { setting: 'dp_distance',  capability: 'measure_distance'  },
   { setting: 'dp_luminance', capability: 'measure_luminance' },
@@ -84,10 +110,7 @@ class PresenceSensorDevice extends BaseTuyaDevice {
 
     await this._baseInit();
     await this._syncOptionalCapabilities(OPTIONAL_CAPABILITIES);
-    await this._syncEnumOptions('dusk_threshold',
-      this.getSetting('dusk_threshold_values'), { zuordnung: true });
-    await this._syncEnumOptions('motion_sensitivity',
-      this.getSetting('motion_sensitivity_values'), { zuordnung: true });
+    await this._syncAuswahlen();
     await this._richteNachlaufEin();
     this._registerListeners();
 
@@ -101,10 +124,35 @@ class PresenceSensorDevice extends BaseTuyaDevice {
     this._triggerAuswahl = {
       dusk_threshold:     this.homey.flow.getDeviceTriggerCard('presence_sensor_dusk_threshold_changed'),
       motion_sensitivity: this.homey.flow.getDeviceTriggerCard('presence_sensor_motion_sensitivity_changed'),
+      sensor_mode:        this.homey.flow.getDeviceTriggerCard('presence_sensor_mode_changed'),
     };
     this._triggerPresenceCleared    = this.homey.flow.getDeviceTriggerCard('presence_sensor_presence_cleared');
 
     await this._connect();
+  }
+
+  /**
+   * Die Werteliste einer Auswahl, oder ihre Vorgabe.
+   *
+   * Eine Einstellung, die eine spaetere Version hinzufuegt, ist auf einem bestehenden
+   * Geraet null. Fuer die Modus-Liste hiesse das: auf genau dem Melder, fuer den sie
+   * gebaut ist, schluege die Karte "Modus setzen" nichts vor. Ein leeres Feld ist
+   * ohnehin keine Liste, also gilt dort dasselbe.
+   *
+   * @param {string} quelle  Der Name der Einstellung, etwa 'device_mode_values'.
+   * @returns {string}
+   */
+  _werteliste(quelle) {
+    const wert = this.getSetting(quelle);
+    if (wert !== null && wert !== undefined && String(wert).trim() !== '') return String(wert);
+    return WERTE_VORGABE[quelle] || '';
+  }
+
+  /** Jede Auswahl, die das Geraet hat, auf ihre Werteliste. */
+  async _syncAuswahlen() {
+    for (const [faehigkeit, quelle] of Object.entries(ENUM_QUELLE)) {
+      await this._syncEnumOptions(faehigkeit, this._werteliste(quelle), { zuordnung: true });
+    }
   }
 
   /**
@@ -159,7 +207,7 @@ class PresenceSensorDevice extends BaseTuyaDevice {
   }
 
   /**
-   * Die vier Bedienelemente, die zurueckschreiben.
+   * Die Bedienelemente, die zurueckschreiben.
    *
    * Nur einmal je Faehigkeit: die Methode laeuft auch nach einer Einstellungsaenderung
    * noch einmal, weil dort Faehigkeiten dazukommen koennen, und ein zweiter Zuhoerer
@@ -176,7 +224,7 @@ class PresenceSensorDevice extends BaseTuyaDevice {
         if (!(dp > 0)) return;
         const quelle = ENUM_QUELLE[e.capability];
         let roh = value;
-        if (quelle) roh = idZuRoh(this.getSetting(quelle), value);
+        if (quelle) roh = idZuRoh(this._werteliste(quelle), value);
         else if (e.art === 'nachlauf') {
           // Zurueck in die Einheit des Geraets, und in seinen Bereich. Eine 0 bleibt
           // eine 0 — das ist der einzige Wert unter dem Minimum, den es annehmen
@@ -266,12 +314,11 @@ class PresenceSensorDevice extends BaseTuyaDevice {
         case 'auswahl': {
           // Schickt das Geraet eine Ziffer, wo die Kachel einen Namen fuehrt, sagt
           // die Werteliste, welcher gemeint ist. Ohne Zuordnung bleibt der Wert.
-          const name = rohZuId(this.getSetting(ENUM_QUELLE[entry.capability]), value);
+          const name = rohZuId(this._werteliste(ENUM_QUELLE[entry.capability]), value);
           const vorher = this.getCapabilityValue(entry.capability);
           if (vorher !== null && vorher !== undefined && vorher !== name) {
-            const token = entry.capability === 'dusk_threshold' ? 'threshold' : 'sensitivity';
             this._triggerAuswahl[entry.capability]
-              .trigger(this, { [token]: name }).catch(() => {});
+              .trigger(this, { [AUSWAHL_TOKEN[entry.capability]]: name }).catch(() => {});
           }
           await this.setCapabilityValue(entry.capability, name).catch(() => {
             this._appLog(`${entry.capability}: the device reports "${value}", which is not in `
@@ -308,14 +355,12 @@ class PresenceSensorDevice extends BaseTuyaDevice {
       this._startPolling();
     }
     if (changedKeys.includes('reconnect_interval')) this._startAutoReconnect();
-    if (this._touchesOptional(changedKeys, OPTIONAL_CAPABILITIES)) {
-      await this._syncOptionalCapabilities(OPTIONAL_CAPABILITIES);
-    }
-    if (changedKeys.some((k) => ['dusk_threshold_values', 'motion_sensitivity_values'].includes(k))) {
-      await this._syncEnumOptions('dusk_threshold',
-        this.getSetting('dusk_threshold_values'), { zuordnung: true });
-      await this._syncEnumOptions('motion_sensitivity',
-        this.getSetting('motion_sensitivity_values'), { zuordnung: true });
+    const optional = this._touchesOptional(changedKeys, OPTIONAL_CAPABILITIES);
+    if (optional) await this._syncOptionalCapabilities(OPTIONAL_CAPABILITIES);
+    // Auch nach einer neu entstandenen Kachel: sie kommt mit den Werten aus dem
+    // Manifest, nicht mit denen aus ihrer Liste.
+    if (optional || changedKeys.some((k) => Object.values(ENUM_QUELLE).includes(k))) {
+      await this._syncAuswahlen();
     }
     if (changedKeys.some((k) => k.startsWith('hold_time_') || k === 'dp_motion_hold_time')) {
       await this._richteNachlaufEin();

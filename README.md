@@ -1053,6 +1053,7 @@ The defaults match the **ZY-M100-WIFI** DP layout exactly. Sensors using a diffe
 | `dp_motion_sensitivity` | <img src="assets/capabilities/comfort_level.svg" height="24"> | `motion_sensitivity` | enum | 0 | `low` / `middle` / `high` on a PIR · ✓ `0` = disabled |
 | `dp_motion_hold_time` | <img src="assets/capabilities/countdown_left.svg" height="24"> | `motion_hold_time` | number | 0 | Seconds it keeps reporting after the last movement · ✓ `0` = disabled |
 | `dp_motion_enabled` | <img src="assets/capabilities/self_clean.svg" height="24"> | `motion_enabled` | boolean | 0 | Switches the detection itself off and on · ✓ `0` = disabled |
+| `dp_device_mode` | <img src="assets/capabilities/mode.svg" height="24"> | `sensor_mode` | enum | 0 | The sensor's own mode, `auto` / `manual` on a PIR; the names come from `device_mode_values` · ✓ `0` = disabled |
 
 > **PIR sensors report differently from radar ones.** A radar module puts its presence state
 > on DP 1 as `presence` / `none`; a reported PIR calls the same state `pir` and sits on DP 52.
@@ -1061,6 +1062,11 @@ The defaults match the **ZY-M100-WIFI** DP layout exactly. Sensors using a diffe
 > `2000lux` down to `5lux` for the threshold — and the value lists take the `name=value` form
 > if yours numbers them instead. Pairing recognises all four by their manufacturer code names
 > (`cds`, `pir_sensitivity`, `pir_delay`, `switch_pir`) when Cloud Lookup is configured.
+>
+> A PIR may also carry a mode — `device_mode`, typically DP 51, `auto` / `manual`. One reported
+> unit switches its motion detection back on by itself a few minutes after it was switched off,
+> while it is in `auto`; a flow that keeps switching it off races that timer. Pairing finds the
+> mode by its code name; on a sensor that is already paired, enter the number under **Mode DP**.
 
 ##### The hold time's range
 
@@ -2581,6 +2587,7 @@ fan: sub-capabilities (`onoff.fan`, `dim.fan`) and app-defined capabilities (`fa
 | Presence cleared | — | Radar reports `none` (after `dp_fading_time`) |
 | Daylight threshold changed | `threshold` (string) | The name from `dusk_threshold_values`, not the device's raw value |
 | Motion sensitivity changed | `sensitivity` (string) | The name from `motion_sensitivity_values`; does not fire on the first value read after a restart |
+| Mode changed | `mode` (string) | The name from `device_mode_values`; does not fire on the first value read after a restart |
 | Presence sensor connected | — | Device established a LAN connection |
 | Presence sensor disconnected | — | Connection lost after offline grace period |
 | Presence sensor data point changed | `dp` (string), `value` (string) | Any raw DP change |
@@ -2593,6 +2600,7 @@ fan: sub-capabilities (`onoff.fan`, `dim.fan`) and app-defined capabilities (`fa
 | Daylight threshold is / is not | Picks from `dusk_threshold_values`; requires `dp_dusk_threshold` ≠ 0 |
 | Motion sensitivity is / is not | Picks from `motion_sensitivity_values`; requires `dp_motion_sensitivity` ≠ 0 |
 | Motion detection is / is not on | Requires `dp_motion_enabled` ≠ 0 |
+| Mode is / is not | Picks from `device_mode_values`; requires `dp_device_mode` ≠ 0 |
 | Presence sensor is / is not connected | |
 
 #### Actions
@@ -2603,6 +2611,7 @@ fan: sub-capabilities (`onoff.fan`, `dim.fan`) and app-defined capabilities (`fa
 | Set motion sensitivity | Same translation from `motion_sensitivity_values`; requires `dp_motion_sensitivity` ≠ 0 |
 | Set hold time | Seconds, 0–3600. The card offers one range for every sensor; a value outside this one's own range arrives as its nearest end rather than being refused. Requires `dp_motion_hold_time` ≠ 0 |
 | Turn motion detection on or off | Requires `dp_motion_enabled` ≠ 0 |
+| Set mode | Picks a name from `device_mode_values` — `auto` or `manual` on a PIR — and sends the value behind it. Requires `dp_device_mode` ≠ 0 |
 | Reconnect presence sensor | Drops and re-establishes the TCP connection |
 | Refresh presence sensor values | Triggers an immediate GET request |
 
@@ -2948,6 +2957,7 @@ Fetch device credentials and DP specifications from the Tuya IoT Platform (avail
 | Heat pump mode/preset picker does nothing | DP was enabled after initial pairing — listener not registered | Restart the Tuya Local app; the listener is re-registered on next `onInit` |
 | Pet feeder dispenses food on its own after a restart or reconnect | A command reaches it through Homey - the app never feeds by itself | Check the log: every feed command is written there with the way it came in (the **Feed now** flow card or the portions picker) and how soon after connecting. One that arrives right after the connection came up usually comes from a flow that starts when the feeder connects |
 | Pet feeder sends 3–4 "disconnected" notifications per night | Tuya firmware briefly drops TCP connection at timed intervals | Increase **Offline Grace Period** in device settings (default 60 s already handles most cases; try 120 s if it still fires) |
+| Presence sensor (PIR) switches its motion detection back on by itself | The sensor's own `auto` mode — a flow that switches detection off every few minutes races its timer | Set **Mode DP** (typically 51) and switch the mode to `manual`, on the tile or with the **Set mode** flow card |
 | Generic device shows raw key as label | Missing locale key | Set labels via the `label` field in the dp_config mapping |
 | Curtain position slider is inverted | Device uses 0 = open, 100 = closed | Enable `invert_position` in device settings |
 | Curtain tile shows "moving" but motor has stopped | `work_state` DP not resetting on this device | Set `dp_work_state = 0` to disable it |

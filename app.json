@@ -2568,6 +2568,33 @@
       "setable": true,
       "uiComponent": "toggle",
       "icon": "/assets/capabilities/self_clean.svg"
+    },
+    "sensor_mode": {
+      "type": "enum",
+      "title": {
+        "en": "Mode",
+        "de": "Modus"
+      },
+      "getable": true,
+      "setable": true,
+      "uiComponent": "picker",
+      "icon": "/assets/capabilities/mode.svg",
+      "values": [
+        {
+          "id": "auto",
+          "title": {
+            "en": "Auto",
+            "de": "Automatisch"
+          }
+        },
+        {
+          "id": "manual",
+          "title": {
+            "en": "Manual",
+            "de": "Manuell"
+          }
+        }
+      ]
     }
   },
   "flow": {
@@ -6662,6 +6689,31 @@
             "example": "middle"
           }
         ]
+      },
+      {
+        "id": "presence_sensor_mode_changed",
+        "title": {
+          "en": "Mode changed",
+          "de": "Modus geändert"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=presence_sensor"
+          }
+        ],
+        "tokens": [
+          {
+            "name": "mode",
+            "type": "string",
+            "title": {
+              "en": "Mode",
+              "de": "Modus"
+            },
+            "example": "manual"
+          }
+        ]
       }
     ],
     "conditions": [
@@ -8821,6 +8873,32 @@
             "name": "device",
             "type": "device",
             "filter": "driver_id=presence_sensor"
+          }
+        ]
+      },
+      {
+        "id": "presence_sensor_mode_is",
+        "title": {
+          "en": "Mode !{{is|is not}}",
+          "de": "Modus !{{ist|ist nicht}}"
+        },
+        "titleFormatted": {
+          "en": "Mode !{{is|is not}} [[mode]]",
+          "de": "Modus !{{ist|ist nicht}} [[mode]]"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=presence_sensor"
+          },
+          {
+            "name": "mode",
+            "type": "autocomplete",
+            "placeholder": {
+              "en": "Mode",
+              "de": "Modus"
+            }
           }
         ]
       }
@@ -14436,6 +14514,32 @@
                 }
               }
             ]
+          }
+        ]
+      },
+      {
+        "id": "presence_sensor_set_mode",
+        "title": {
+          "en": "Set mode",
+          "de": "Modus setzen"
+        },
+        "titleFormatted": {
+          "en": "Set mode to [[mode]]",
+          "de": "Modus auf [[mode]] setzen"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=presence_sensor"
+          },
+          {
+            "name": "mode",
+            "type": "autocomplete",
+            "placeholder": {
+              "en": "Mode",
+              "de": "Modus"
+            }
           }
         ]
       }
@@ -26292,6 +26396,34 @@
               "hint": {
                 "en": "DP that switches the motion detection itself off and on — typically 56 on a PIR. Switched off the sensor stops reporting, which is not the same as the device being unreachable. 0 = disabled.",
                 "de": "DP, der die Bewegungserkennung selbst aus- und einschaltet — bei einem PIR typischerweise 56. Ausgeschaltet meldet der Melder nichts mehr, was etwas anderes ist, als wenn das Gerät nicht erreichbar wäre. 0 = nicht benutzt."
+              }
+            },
+            {
+              "id": "dp_device_mode",
+              "type": "number",
+              "label": {
+                "en": "Mode DP",
+                "de": "Modus DP"
+              },
+              "value": 0,
+              "min": 0,
+              "max": 255,
+              "hint": {
+                "en": "DP of the sensor's own mode — typically 51 on a PIR, with the values auto / manual. One reported PIR switches its motion detection back on by itself a few minutes after it was switched off, while it is in auto. 0 = disabled.",
+                "de": "DP des eigenen Modus des Melders — bei einem PIR typischerweise 51, mit den Werten auto / manual. Ein gemeldeter PIR schaltet seine Bewegungserkennung ein paar Minuten nach dem Ausschalten von selbst wieder ein, solange er auf auto steht. 0 = nicht benutzt."
+              }
+            },
+            {
+              "id": "device_mode_values",
+              "type": "text",
+              "label": {
+                "en": "Mode values (comma-separated)",
+                "de": "Modus-Werte (kommagetrennt)"
+              },
+              "value": "auto,manual",
+              "hint": {
+                "en": "The modes your sensor offers, in its own spelling. The same name=value form applies if yours uses numbers.",
+                "de": "Die Modi, die Ihr Melder kennt, in seiner eigenen Schreibweise. Dieselbe Form Name=Wert gilt, wenn Ihrer Zahlen benutzt."
               }
             },
             {
