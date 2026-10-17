@@ -403,6 +403,11 @@ class AirQualityDevice extends BaseTuyaDevice {
 
   // ── Settings ──────────────────────────────────────────────────────────────
 
+  /** Die Skalen stehen hier im DP-Profil, nicht in getScaleMaps() - siehe BaseTuyaDevice. */
+  _umrechnungen() {
+    return NUMERIC_PROFILE.filter((e) => e.teiler).map((e) => [e.settingKey, e.teiler]);
+  }
+
   async onSettings({ changedKeys }) {
     const connectionKeys = ['ip', 'device_id', 'local_key', 'version'];
     if (changedKeys.some((k) => connectionKeys.includes(k))) {

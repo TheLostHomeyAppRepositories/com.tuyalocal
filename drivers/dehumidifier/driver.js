@@ -6,7 +6,7 @@ const { setupCloudLookup } = require('../../lib/pairCloudLookup');
 const { describeConnectFailure } = require('../../lib/connectFailure');
 const { detectProtocolVersion } = require('../../lib/autoDetect');
 const { scanNetwork }           = require('../../lib/networkScan');
-const { detectViaCloud, guessedDefaults, dpVorgaben }        = require('../../lib/dpCodeMap');
+const { detectViaCloud, guessedDefaults, dpVorgaben, temperaturTeiler } = require('../../lib/dpCodeMap');
 const { fehlertext, leseWerteliste, modusUndLuefter } = require('../../lib/utils.js');
 
 // Maps this driver's settings keys to the Tuya cloud "code" names that
@@ -39,6 +39,13 @@ const CLOUD_ENUM_VALUES_MAP = {
   dp_mode:      'mode_values',
   dp_fan_speed: 'fan_speed_values',
 };
+
+// Die Nachkommastellen des Temperatur-DPs, beim Anlegen aus der Spezifikation - nur
+// als Zwischenwert fuer temp_divisor, siehe temperaturTeiler in lib/dpCodeMap.js.
+// Bewusst nicht in getCloudMaps: Fix It schriebe den Zwischenwert sonst als
+// Einstellung; fuer ein angelegtes Geraet prueft "Check measurement scaling" den Teiler.
+const TEMP_NACHKOMMA = '_temp_nachkomma';
+const TEMP_SKALA_MAP = { dp_temperature: { scale: TEMP_NACHKOMMA } };
 
 class DehumidifierDriver extends Homey.Driver {
   async onInit() {
@@ -280,11 +287,18 @@ class DehumidifierDriver extends Homey.Driver {
           // Best-effort refinement using the device's Tuya cloud specification.
           // Only runs if Cloud Lookup credentials were saved previously (Settings
           // → ☁️ Cloud Lookup) — never blocks pairing if unavailable or it fails.
-          const cloudDps = await detectViaCloud(this.homey, deviceId, CLOUD_CODE_MAP, (m) => this.log(m), CLOUD_ENUM_VALUES_MAP, guessedDefaults(detectedDps, collectedDps));
+          const cloudDps = await detectViaCloud(this.homey, deviceId, CLOUD_CODE_MAP, (m) => this.log(m), CLOUD_ENUM_VALUES_MAP, guessedDefaults(detectedDps, collectedDps), TEMP_SKALA_MAP);
           if (Object.keys(cloudDps).length > 0) {
             Object.assign(detectedDps, cloudDps);
             this.log('Final detected DPs (cloud-refined):', JSON.stringify(detectedDps));
           }
+
+          // Der Teiler zur Temperatur: aus der Spezifikation, sonst aus dem Rohwert.
+          // Die Vorgabe 10 passt nur zu Zehnteln - ein Melder mit ganzen Grad zeigte
+          // 18 als 1,8.
+          const teiler = temperaturTeiler(detectedDps[TEMP_NACHKOMMA], collectedDps[detectedDps.dp_temperature]);
+          delete detectedDps[TEMP_NACHKOMMA];
+          if (detectedDps.dp_temperature > 0 && teiler) detectedDps.temp_divisor = teiler;
         }
       } catch (err) {
         connected = false;

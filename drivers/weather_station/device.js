@@ -273,6 +273,11 @@ class WeatherStationDevice extends BaseTuyaDevice {
 
   // ── Homey lifecycle ────────────────────────────────────────────────────────
 
+  /** Die Skalen stehen hier im DP-Profil, nicht in getScaleMaps() - siehe BaseTuyaDevice. */
+  _umrechnungen() {
+    return NUMERIC_PROFILE.filter((e) => e.divisor).map((e) => [e.settingKey, e.divisor]);
+  }
+
   async onSettings({ changedKeys }) {
     const connectionKeys = ['ip', 'device_id', 'local_key', 'version'];
     if (changedKeys.some((k) => connectionKeys.includes(k))) {

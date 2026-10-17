@@ -199,7 +199,7 @@ homey app install
 | `dp_countdown_timer` | <img src="assets/capabilities/countdown_timer.svg" height="24"> | `countdown_timer` | enum | 17 | ✓ `0` = disabled |
 | `dp_countdown_left` | <img src="assets/capabilities/countdown_left.svg" height="24"> | `countdown_left` | number | 18 | ✓ `0` = disabled |
 | `dp_water_full` |  | `alarm_water` | boolean | 19 | ✓ `0` = disabled |
-| `dp_temperature` |  | `measure_temperature` | number | 0 | ✓ `0` = disabled |
+| `dp_temperature` |  | `measure_temperature` | number | 0 | Divided by `temp_divisor` (`1`, `10` or `100`, default `10`). Pairing sets it from the specification's decimal places, or else from the reported value: up to 60 is whole degrees · ✓ `0` = disabled |
 | `dp_anion` | <img src="assets/capabilities/anion.svg" height="24"> | `anion` | boolean | 0 | ✓ `0` = disabled |
 | `dp_oscillate` | <img src="assets/capabilities/oscillate.svg" height="24"> | `oscillate` | boolean | 0 | ✓ `0` = disabled |
 | `dp_self_clean` | <img src="assets/capabilities/self_clean.svg" height="24"> | `self_clean` | boolean | 0 | ✓ `0` = disabled |
@@ -551,7 +551,7 @@ Same settings as Dehumidifier (IP, Device ID, Local Key, Protocol Version, Polli
 | `dp_water_empty` |  | `alarm_water` | boolean | 0 | ✓ `0` = disabled |
 | `dp_countdown_timer` | <img src="assets/capabilities/countdown_timer.svg" height="24"> | `countdown_timer` | enum | 0 | ✓ `0` = disabled |
 | `dp_countdown_left` | <img src="assets/capabilities/countdown_left.svg" height="24"> | `countdown_left` | number | 0 | ✓ `0` = disabled |
-| `dp_temperature` |  | `measure_temperature` | number | 0 | ✓ `0` = disabled |
+| `dp_temperature` |  | `measure_temperature` | number | 0 | Divided by `temp_divisor` (`1`, `10` or `100`, default `10`). Pairing sets it from the specification's decimal places, or else from the reported value: up to 60 is whole degrees · ✓ `0` = disabled |
 | `dp_anion` | <img src="assets/capabilities/anion.svg" height="24"> | `anion` | boolean | 0 | ✓ `0` = disabled |
 
 > **Note:** `alarm_water` for a humidifier indicates that the water tank is **empty** (refill needed), as opposed to the dehumidifier where it means the tank is full.
@@ -2949,6 +2949,7 @@ Fetch device credentials and DP specifications from the Tuya IoT Platform (avail
 | Smart Plug power reading is 10× off | Wrong power scale | Change **Power Scale** setting to ×0.1 |
 | Energy (kWh) shows `—` or never updates | `dp_energy` set to 17 but device sends delta locally | Set `dp_energy = 0` — app will compute kWh from power readings |
 | AC / Heater temperature is 10× too high | Device sends ×10 scaled values | Set `temp_divisor = 10` in device settings |
+| Temperature is 10× too low — 18 °C shows as 1.8 | The device sends whole degrees, the divisor expects tenths | Set `temp_divisor` to `1`. A changed divisor or scale applies as soon as you save, from the last reported value. With Cloud Lookup set up, **Fix It → Check measurement scaling** reads the right one from the specification |
 | Heat pump target temp correct but measured temp is 10× too high | Asymmetric DP scaling (e.g. Weau): target DP is raw °C but measured DP is ×10 | Set **Measured Temperature Divisor (override)** (`current_temp_divisor`) to `10`, leave the main `temp_divisor` at `1` |
 | Mode / fan picker shows wrong options | `mode_values` / `fan_speed_values` mismatch | Update values in device settings, then restart the Tuya Local app |
 | Picker still shows old options after saving | Homey caches capability options | Restart the Tuya Local app |
