@@ -1,4 +1,8 @@
 {
+  "1.0.281": {
+    "en": "Status widget: new preview images in the widget picker and the App Store.",
+    "de": "Status-Widget: neue Vorschaubilder in der Widget-Auswahl und im App Store."
+  },
   "1.0.280": {
     "en": "New dashboard widget \"Tuya Local status\": shows at a glance whether your Tuya Local devices are connected — green, amber for connecting or silent, red for offline — and, by default, lists only the ones that are not, with how long. Tap a row for driver, IP address, protocol and the last error. A device that only reports by itself never turns amber just for staying quiet. The widget only shows; it switches nothing. The support bundle now states the same state for each device.",
     "de": "Neues Dashboard-Widget „Tuya Local Status“: zeigt auf einen Blick, ob die Tuya-Local-Geräte verbunden sind — grün, gelb für verbindet oder still, rot für offline — und listet in der Vorgabe nur die, die es nicht sind, mit der Dauer. Ein Tipp auf eine Zeile zeigt Treiber, IP-Adresse, Protokoll und den letzten Fehler. Ein Gerät, das nur von sich aus meldet, wird nicht gelb, nur weil es lange nichts sagt. Das Widget zeigt nur an und schaltet nichts. Der Support-Bericht nennt jetzt denselben Zustand für jedes Gerät."
