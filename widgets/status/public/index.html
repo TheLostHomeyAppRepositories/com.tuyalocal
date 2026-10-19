@@ -1,0 +1,187 @@
+<html>
+  <head>
+    <style>
+      .kopf { display: flex; align-items: baseline; gap: var(--homey-su-2); }
+      .kopf .zeit { margin-left: auto; }
+      .liste { list-style: none; margin: var(--homey-su-2) 0 0; padding: 0; }
+      .zeile { border-top: var(--homey-line); padding: var(--homey-su-2) 0; cursor: pointer; }
+      .oben { display: flex; align-items: center; gap: var(--homey-su-2); }
+      .punkt { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+      .punkt.ok { background: var(--homey-color-success); }
+      .punkt.connecting, .punkt.silent { background: var(--homey-color-warning); }
+      .punkt.offline { background: var(--homey-color-danger); }
+      .name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .grund { white-space: nowrap; }
+      .details { padding: var(--homey-su-1) 0 0 calc(8px + var(--homey-su-2)); }
+      .alles-gut { display: flex; align-items: center; gap: var(--homey-su-2); }
+      .haken { width: 20px; height: 20px; flex: none; color: var(--homey-color-success); }
+      .stand { margin: var(--homey-su-1) 0 0 calc(20px + var(--homey-su-2)); }
+    </style>
+  </head>
+
+  <body class="homey-widget">
+    <div id="inhalt"></div>
+
+    <script type="text/javascript">
+      // Zeigt den Zustand aller Tuya-Local-Geraete - siehe widgetStatus in app.js.
+      // Nur lesend. Geraetenamen stammen vom Nutzer, darum alles ueber textContent.
+      function onHomeyReady(Homey) {
+        var offen = {};       // aufgeklappte Zeilen, nach schluessel
+        var letzte = null;    // die letzte Antwort der App
+        var fehler = false;
+        var bereit = false;
+        var warte = null;
+
+        function t(schluessel, werte) {
+          return Homey.__('widgets.status.' + schluessel, werte);
+        }
+
+        function el(tag, klasse, text) {
+          var e = document.createElement(tag);
+          if (klasse) e.className = klasse;
+          if (text !== undefined && text !== null) e.textContent = text;
+          return e;
+        }
+
+        function dauer(ms) {
+          var min = Math.floor(Math.max(0, ms) / 60000);
+          if (min < 1) return t('time.lessThanMinute');
+          if (min < 60) return t('time.minutes', { n: min });
+          var h = Math.floor(min / 60);
+          if (h < 48) return t('time.hours', { h: h, m: min % 60 });
+          return t('time.days', { n: Math.floor(h / 24) });
+        }
+
+        function uhrzeit(ms) {
+          return new Date(ms).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function grund(g, jetzt) {
+          var seit = g.seit ? jetzt - g.seit : null;
+          if (g.zustand === 'offline') {
+            return seit !== null ? t('state.offline', { time: dauer(seit) }) : t('state.offlineNoTime');
+          }
+          if (g.zustand === 'silent') {
+            return t(g.art === 'no_answer' ? 'state.noAnswer' : 'state.noData', { time: dauer(seit || 0) });
+          }
+          if (g.zustand === 'connecting') return t('state.connecting');
+          return t('state.ok');
+        }
+
+        function haken() {
+          var ns = 'http://www.w3.org/2000/svg';
+          var svg = document.createElementNS(ns, 'svg');
+          svg.setAttribute('viewBox', '0 0 24 24');
+          svg.setAttribute('class', 'haken');
+          svg.setAttribute('aria-hidden', 'true');
+          var kreis = document.createElementNS(ns, 'circle');
+          kreis.setAttribute('cx', '12'); kreis.setAttribute('cy', '12'); kreis.setAttribute('r', '10');
+          kreis.setAttribute('fill', 'none'); kreis.setAttribute('stroke', 'currentColor'); kreis.setAttribute('stroke-width', '2');
+          var strich = document.createElementNS(ns, 'path');
+          strich.setAttribute('d', 'M8 12.5l2.5 2.5L16 9.5');
+          strich.setAttribute('fill', 'none'); strich.setAttribute('stroke', 'currentColor'); strich.setAttribute('stroke-width', '2');
+          strich.setAttribute('stroke-linecap', 'round'); strich.setAttribute('stroke-linejoin', 'round');
+          svg.appendChild(kreis);
+          svg.appendChild(strich);
+          return svg;
+        }
+
+        function hoehe() {
+          var h = Math.ceil(document.body.scrollHeight);
+          if (!bereit) {
+            bereit = true;
+            Homey.ready({ height: h });
+          } else {
+            Promise.resolve(Homey.setHeight(h)).catch(function () {});
+          }
+        }
+
+        function zeile(g, jetzt) {
+          var li = el('li', 'zeile');
+          var oben = el('div', 'oben');
+          oben.appendChild(el('span', 'punkt ' + g.zustand));
+          oben.appendChild(el('span', 'homey-text-regular name', g.name));
+          oben.appendChild(el('span', 'homey-text-small-light grund', grund(g, jetzt)));
+          li.appendChild(oben);
+          if (offen[g.schluessel]) {
+            var d = el('div', 'details');
+            var teile = [g.treiber];
+            if (g.gateway) teile.push(t('detail.viaGateway', { name: g.gateway }));
+            if (g.ip) teile.push(g.ip);
+            if (g.protokoll) {
+              teile.push(g.protokoll + (g.protokollAktiv ? ' (' + t('detail.inUse', { version: g.protokollAktiv }) + ')' : ''));
+            }
+            d.appendChild(el('div', 'homey-text-small-light', teile.join(' · ')));
+            if (g.fehler) d.appendChild(el('div', 'homey-text-small-light', t('detail.lastError', { error: g.fehler })));
+            li.appendChild(d);
+          }
+          li.addEventListener('click', function () {
+            offen[g.schluessel] = !offen[g.schluessel];
+            zeichne();
+          });
+          return li;
+        }
+
+        function zeichne() {
+          var inhalt = document.getElementById('inhalt');
+          inhalt.textContent = '';
+          if (!letzte) {
+            if (fehler) inhalt.appendChild(el('p', 'homey-text-regular', t('error')));
+            return hoehe();
+          }
+          // Die Zeit der App, fortgeschrieben - die Uhr des Telefons kann abweichen.
+          var jetzt = letzte.jetzt + (Date.now() - letzte.empfangen);
+          var alle = letzte.geraete || [];
+          if (alle.length === 0) {
+            inhalt.appendChild(el('p', 'homey-text-regular', t('none')));
+            return hoehe();
+          }
+          var probleme = alle.filter(function (g) { return g.zustand !== 'ok'; });
+          var nurProbleme = (Homey.getSettings() || {}).show !== 'all';
+          var zeigen = nurProbleme ? probleme : alle;
+
+          if (zeigen.length === 0) {
+            var gut = el('div', 'alles-gut');
+            gut.appendChild(haken());
+            gut.appendChild(el('span', 'homey-text-medium', t('allOk', { count: alle.length })));
+            inhalt.appendChild(gut);
+            inhalt.appendChild(el('p', 'homey-text-small-light stand', t('asOf', { time: uhrzeit(letzte.jetzt) })));
+            return hoehe();
+          }
+
+          var kopf = el('div', 'kopf');
+          kopf.appendChild(el('span', 'homey-text-medium', t('summary', { ok: alle.length - probleme.length, count: alle.length })));
+          kopf.appendChild(el('span', 'homey-text-small-light zeit', uhrzeit(letzte.jetzt)));
+          inhalt.appendChild(kopf);
+          var liste = el('ul', 'liste');
+          zeigen.forEach(function (g) { liste.appendChild(zeile(g, jetzt)); });
+          inhalt.appendChild(liste);
+          return hoehe();
+        }
+
+        function laden() {
+          Homey.api('GET', '/', {})
+            .then(function (antwort) {
+              antwort.empfangen = Date.now();
+              letzte = antwort;
+              fehler = false;
+              zeichne();
+            })
+            .catch(function () {
+              fehler = true;
+              zeichne();
+            });
+        }
+
+        // Die App meldet Verbindungswechsel, gebuendelt. Dazu jede Minute: "still"
+        // entsteht dadurch, dass Zeit vergeht, und dazu gibt es kein Ereignis.
+        Homey.on('status', function () {
+          clearTimeout(warte);
+          warte = setTimeout(laden, 300);
+        });
+        setInterval(laden, 60000);
+        laden();
+      }
+    </script>
+  </body>
+</html>

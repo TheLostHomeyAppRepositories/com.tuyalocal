@@ -21,6 +21,10 @@ const LOG_MAX = 500;
 const BUNDLE_LOG_MAX = 120;
 // Wie viele Zeilen der Verbindungs-Spur der Support-Bericht fuehrt - siehe addSpur.
 const SPUR_MAX = 200;
+// Ab wann ein verbundenes Geraet ohne Daten als still gilt - siehe geraeteZustand.
+const STILL_MS = 120000;
+// Wie lange das Status-Widget Aenderungen sammelt, bevor es Bescheid bekommt.
+const STATUS_BUENDEL_MS = 2000;
 // Wie viele der LOG_MAX Plaetze Warnungen, Fehler und gekennzeichnete Ereignisse
 // hoechstens belegen duerfen. Ohne diesen Deckel koennten sie ueber Monate alle 500
 // Plaetze fuellen, und der Logs-Reiter der App - der denselben Puffer liest - zeigte
@@ -343,6 +347,101 @@ class TuyaLocalApp extends Homey.App {
    *   per device in structured form so the settings page can prefill a GitHub
    *   issue from them instead of parsing them back out of the text.
    */
+  // ── Status-Widget ───────────────────────────────────────────────────────────
+
+  /**
+   * Der Zustand eines Geraets, fuer das Status-Widget und den Support-Bericht.
+   *
+   *   offline     Homey fuehrt es als nicht verfuegbar.
+   *   connecting  Verfuegbar, aber gerade ohne Verbindung - oder verbunden, und das
+   *               erste Paket ist noch unterwegs.
+   *   silent      Verbunden, aber still: seit STILL_MS kein einziges Paket auf dieser
+   *               Verbindung, oder - nur mit Abfragetakt - seit drei Takten keine Antwort.
+   *   ok          Verbunden, und es kommen Daten.
+   *
+   * Ein Geraet, das nur von sich aus meldet (Abfragetakt 0), wird nicht still, weil es
+   * lange nichts sagt: das ist bei Sensoren der Normalfall, und eine Warnung dafuer waere
+   * dieselbe falsche Spur wie einst das "push-only" im Protokoll. Der Takt kommt darum
+   * aus der Einstellung, nicht aus _pollIntervalMs - dort steht bei Takt 0 der lokale
+   * 30-s-Takt fuer die berechnete Energie.
+   *
+   * @param {Object} device
+   * @param {number} [jetzt]
+   * @returns {{zustand: string, seit: number|null, art: string|null}}
+   */
+  geraeteZustand(device, jetzt = Date.now()) {
+    const verfuegbar = (() => { try { return device.getAvailable() !== false; } catch (e) { return true; } })();
+    if (!verfuegbar) return { zustand: 'offline', seit: device._offlineSeit || null, art: null };
+    if (device._conn?.connected !== true) {
+      return { zustand: 'connecting', seit: device._offlineSeit || null, art: null };
+    }
+    const seit = device._verbundenSeit || null;
+    if (device._datenAufVerbindung !== true) {
+      if (seit && jetzt - seit > STILL_MS) return { zustand: 'silent', seit, art: 'no_data' };
+      return { zustand: 'connecting', seit, art: null };
+    }
+    let takt = 0;
+    try { takt = Number(device.getSetting('polling_interval')) * 1000 || 0; } catch (e) {}
+    const zuletzt = device._lastDataTime || null;
+    if (takt > 0 && zuletzt && jetzt - zuletzt > Math.max(STILL_MS, 3 * takt)) {
+      return { zustand: 'silent', seit: zuletzt, art: 'no_answer' };
+    }
+    return { zustand: 'ok', seit, art: null };
+  }
+
+  /**
+   * Was das Status-Widget zeigt: jedes Geraet mit Zustand, schlimmste zuerst. Nur
+   * lesend. Die Treibernamen in der Sprache des Homey - das Widget kennt sie nicht.
+   *
+   * @returns {{jetzt: number, geraete: Array}}
+   */
+  widgetStatus() {
+    const jetzt = Date.now();
+    let sprache = 'en';
+    try { sprache = this.homey.i18n.getLanguage() || 'en'; } catch (e) {}
+    const rang = { offline: 0, silent: 1, connecting: 2, ok: 3 };
+    const geraete = [];
+    for (const driver of Object.values(this.homey.drivers.getDrivers())) {
+      const tn = driver.manifest?.name;
+      const treiber = (tn && (tn[sprache] || tn.en)) || driver.id;
+      for (const device of driver.getDevices()) {
+        let s = {};
+        try { s = device.getSettings() || {}; } catch (e) {}
+        let id = '';
+        try { id = device.getData().id || ''; } catch (e) {}
+        const z = this.geraeteZustand(device, jetzt);
+        const sub = istUntergeraet(device);
+        const aktiv = device._conn?._version || null;
+        geraete.push({
+          schluessel: `${driver.id}:${id}`,
+          name: device.getName(),
+          treiber,
+          ...z,
+          ip: sub ? null : (s.ip || null),
+          protokoll: sub ? null : (s.version || null),
+          protokollAktiv: !sub && aktiv && aktiv !== s.version ? aktiv : null,
+          gateway: sub ? (device._conn?.gatewayName || '?') : null,
+          fehler: z.zustand === 'ok' ? null : (device._letzterAbbruch?.grund || null),
+        });
+      }
+    }
+    geraete.sort((a, b) => (rang[a.zustand] - rang[b.zustand]) || String(a.name).localeCompare(String(b.name), sprache));
+    return { jetzt, geraete };
+  }
+
+  /**
+   * Ein Geraet hat seinen Zustand gewechselt. Gebuendelt: nach einem Neustart verbinden
+   * sich alle Geraete innerhalb weniger Sekunden, und das Widget soll dafuer nicht
+   * zwanzigmal neu laden.
+   */
+  statusGeaendert() {
+    if (this._statusTimer) return;
+    this._statusTimer = this.homey.setTimeout(() => {
+      this._statusTimer = null;
+      try { Promise.resolve(this.homey.api.realtime('status', null)).catch(() => {}); } catch (e) {}
+    }, STATUS_BUENDEL_MS);
+  }
+
   async buildSupportBundle({ includeCloud = true, onlyDevice = null, onlyDeviceId = null, onProgress = null } = {}) {
     const REDACTED = '********';
     const pad = (s, n) => String(s).padEnd(n);
@@ -452,6 +551,13 @@ class TuyaLocalApp extends Homey.App {
         out.push(`  model      ${model || '?'}${productId ? `  (product ${productId})` : ''}`);
         out.push(`  device id  ${id ? id.slice(0, 6) + '…' : '?'}`);
         out.push(`  available  ${device.getAvailable() ? 'yes' : 'no'}`);
+        {
+          // Derselbe Zustand, den das Status-Widget zeigt.
+          const z = this.geraeteZustand(device);
+          const art = { no_data: 'no data on this connection', no_answer: 'no answer to status requests' }[z.art];
+          out.push(`  state      ${z.zustand}${z.seit ? ` since ${new Date(z.seit).toISOString()}` : ''}`
+            + `${art ? ` - ${art}` : ''}`);
+        }
 
         // Connection block: the configured protocol version and the one actually
         // in use differ after a rotation, and that difference is the answer to a

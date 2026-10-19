@@ -259,5 +259,33 @@
     "on": "ein",
     "off": "aus",
     "pageLang": "de"
+  },
+  "widgets": {
+    "status": {
+      "allOk": "Alle __count__ Geräte verbunden",
+      "summary": "__ok__ von __count__ verbunden",
+      "none": "Noch keine Tuya-Local-Geräte",
+      "error": "Der Status konnte nicht geladen werden",
+      "asOf": "Stand __time__",
+      "state": {
+        "offline": "offline seit __time__",
+        "offlineNoTime": "offline",
+        "connecting": "verbindet…",
+        "noData": "verbunden, seit __time__ keine Daten",
+        "noAnswer": "seit __time__ keine Antwort",
+        "ok": "verbunden"
+      },
+      "detail": {
+        "inUse": "verwendet __version__",
+        "viaGateway": "über Gateway __name__",
+        "lastError": "Letzter Fehler: __error__"
+      },
+      "time": {
+        "lessThanMinute": "unter 1 min",
+        "minutes": "__n__ min",
+        "hours": "__h__ h __m__ min",
+        "days": "__n__ T"
+      }
+    }
   }
 }

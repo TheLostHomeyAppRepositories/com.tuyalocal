@@ -29588,5 +29588,48 @@
         "username": "AndiWirz"
       }
     }
+  },
+  "widgets": {
+    "status": {
+      "name": {
+        "en": "Tuya Local status",
+        "de": "Tuya Local Status"
+      },
+      "height": 76,
+      "settings": [
+        {
+          "id": "show",
+          "type": "dropdown",
+          "title": {
+            "en": "Show",
+            "de": "Anzeigen"
+          },
+          "value": "problems",
+          "values": [
+            {
+              "id": "problems",
+              "title": {
+                "en": "Problems only",
+                "de": "Nur Probleme"
+              }
+            },
+            {
+              "id": "all",
+              "title": {
+                "en": "All devices",
+                "de": "Alle Geräte"
+              }
+            }
+          ]
+        }
+      ],
+      "api": {
+        "status": {
+          "method": "GET",
+          "path": "/"
+        }
+      },
+      "id": "status"
+    }
   }
 }

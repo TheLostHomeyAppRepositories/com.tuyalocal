@@ -73,6 +73,7 @@ when adding a device.
 - **Fix It tab** — five checks that compare your devices against what Tuya declares and offer to correct them: stale local keys, wrong protocol version, wrong measurement scaling, picker options that never got updated, and data points a device does not actually have. Every check previews exactly what it would change, per device, and saves nothing until you confirm
 - **Connect-failure diagnosis** — when a device fails to connect during pairing, the app probes port 6668 and says which of the three it was: nothing at that address, the port closed, or the connection refused because something else already holds the device's single connection slot
 - **Support bundle** — one button, at the top of the **Fix It** tab, collecting everything a report needs: per device the driver, the protocol version configured *and* in use, the full DP mapping, the live values, the connection history (how many connections, how long they held, how many packets arrived, whether any data ever did) and the manufacturer's specification where Cloud Lookup is set up. Local keys never appear in it and device IDs are shortened. Repeated log lines are folded into one with a count, so a single chatty fault cannot crowd out everything else
+- **Status widget** — a dashboard widget that shows at a glance whether every Tuya Local device is connected, and which ones are not and since when — see [Dashboard widget](#dashboard-widget)
 - **Sub-devices behind a gateway** — a Tuya gateway sends the values of its Zigbee and Bluetooth devices over the same connection as its own, separated only by an id in the raw packet. That id is what one must send back to address such a device, and the app had been reading it and overwriting it with the next packet without ever showing it. **DP Debug** now lists each sub-device under its own heading with the data points that arrived under it, and the support bundle carries them too. Whether anything appears there is itself the answer to a question that could not be asked before: some gateways hand their sub-devices out locally and some relay them only to the cloud. A **thermostat behind a gateway** can be added as a device of its own and controlled through the gateway's connection — see [Gateways and their sub-devices](#gateways-and-their-sub-devices)
 - **Diagnostic tools** — in-app log buffer, live DP debug panel, and a Help tab covering every driver and the common faults
 - **Bilingual** — full English and German UI
@@ -2952,6 +2953,24 @@ Fetch device credentials and DP specifications from the Tuya IoT Platform (avail
 - Useful for finding exact enum strings (`mode`, `fan_speed`, etc.)
 
 ---
+
+## Dashboard widget
+
+**Tuya Local status** shows on any Homey dashboard whether your devices are connected (Homey Pro 2023 and later).
+Add it from the dashboard's widget list under Tuya Local.
+
+| Dot | Meaning |
+|---|---|
+| green | Connected, and data is arriving |
+| amber | Connecting — or connected but silent: no data on this connection for 2 minutes, or, with a polling interval set, no answer for three intervals |
+| red | Offline — Homey shows the device as unavailable |
+
+A device with polling interval `0` only reports by itself, so it never turns amber just for staying quiet: for a
+sensor that is normal. By default the widget lists only the devices that are not green, and with all of them fine
+it shows a single line; set **Show** to **All devices** to list every one. Tap a row for the driver, IP address,
+protocol version (and the one in use, when it differs) and the last error. The widget only shows — it switches
+nothing. It updates when a device connects or drops, and once a minute. The support bundle gives each device the
+same state, under `state`.
 
 ## Troubleshooting
 
