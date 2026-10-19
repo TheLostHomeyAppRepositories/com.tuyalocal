@@ -1,6 +1,12 @@
 ﻿'use strict';
 
 const BaseTuyaDevice = require('../../lib/BaseTuyaDevice');
+const { rohZuId, idZuRoh } = require('../../lib/utils.js');
+
+// Was der Steuer-DP fuer auf, stop und zu sendet - siehe _befehl. Die Vorgabe sind die
+// Woerter selbst, wie bisher; sie muss der Vorgabe von control_values im Manifest gleichen,
+// denn ein Geraet, das vor der Einstellung angelegt wurde, liefert fuer sie null.
+const BEFEHLE_VORGABE = 'open,stop,close';
 
 // â”€â”€ Universal curtain motor driver â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 //
@@ -87,7 +93,7 @@ class CurtainMotorDevice extends BaseTuyaDevice {
       const cmd = cmdMap[value];
       if (!cmd) throw new Error(`Unknown state: ${value}`);
       this.log(`Curtain ${cmd} (DP ${dp})${invert ? ' [inverted]' : ''}`);
-      await this._set(dp, cmd);
+      await this._set(dp, this._befehl(cmd));
     });
 
     // windowcoverings_closed: Quick Action toggle â€” true = close, false = open
@@ -99,7 +105,7 @@ class CurtainMotorDevice extends BaseTuyaDevice {
         ? (invert ? 'open' : 'close')
         : (invert ? 'close' : 'open');
       this.log(`Curtain ${cmd} via Quick Action (DP ${dp})${invert ? ' [inverted]' : ''}`);
-      await this._set(dp, cmd);
+      await this._set(dp, this._befehl(cmd));
     });
 
     // windowcoverings_set: 0.0â€“1.0 â†’ 0â€“100 (with optional inversion)
@@ -126,6 +132,49 @@ class CurtainMotorDevice extends BaseTuyaDevice {
 
   async _onDeleted() {
     clearTimeout(this._faultAlarmTimer);
+  }
+
+  // -- Befehlswerte -------------------------------------------------------------
+  //
+  // Gemeldet mit einem Nedis-Rolladenschalter (WIFIWC10WT): sein Steuer-DP meldet "2",
+  // und die Cloud uebersetzt das als close. Der Treiber sandte die Woerter open, stop und
+  // close, die dieser Schalter ohne Fehler verwirft - es bewegte sich nichts -, und das
+  // gemeldete "2" verstand er nicht. control_values sagt, was gesendet wird, in der Form
+  // name=value wie die Wertelisten der anderen Treiber. Ohne Zuordnung bleibt jedes Wort,
+  // wie es ist; ein Motor, der Woerter spricht, merkt davon nichts.
+
+  /** Die Befehlswerte, oder ihre Vorgabe. Ein leeres Feld ist keine Liste. */
+  _befehlsliste() {
+    const wert = this.getSetting('control_values');
+    return wert !== null && wert !== undefined && String(wert).trim() !== '' ? String(wert) : BEFEHLE_VORGABE;
+  }
+
+  /** open, stop oder close, wie das Geraet es erwartet. */
+  _befehl(wort) {
+    return idZuRoh(this._befehlsliste(), wort);
+  }
+
+  /**
+   * Ein gemeldeter Wert, den keiner der drei Befehle traegt. Einmal je Wert: der
+   * Schalter meldet ihn nach jedem Neuverbinden wieder.
+   */
+  _unbekannterBefehl(value) {
+    const roh = String(value);
+    this._gewarnteBefehle = this._gewarnteBefehle || new Set();
+    if (this._gewarnteBefehle.has(roh)) return;
+    this._gewarnteBefehle.add(roh);
+    this._appLog(`Control DP reports "${roh}", which is none of the command values (${this._befehlsliste()}).`
+      + (/^\d+$/.test(roh)
+        ? ' This motor uses numbers: set Command values in the device settings - usually open=1,close=2,stop=3.'
+        : ''), 'warn');
+  }
+
+  /**
+   * Geaenderte Befehlswerte gelten auch fuer die Kachel sofort: der letzte gemeldete
+   * Wert wird mit ihnen neu gelesen - siehe _umrechnungen in BaseTuyaDevice.
+   */
+  _umrechnungen() {
+    return [...super._umrechnungen(), ['dp_control', 'control_values']];
   }
 
   // â”€â”€ DPS handling â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -172,9 +221,14 @@ class CurtainMotorDevice extends BaseTuyaDevice {
 
         // â”€â”€ Control command echo â†’ windowcoverings_state â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         case 'control': {
-          const state = this._richtung(CONTROL_TO_STATE[String(value).toLowerCase()], settings);
+          // Ueber die Befehlswerte zurueck auf das Wort: bei open=1,close=2,stop=3 meint
+          // ein gemeldetes "2" close.
+          const wort  = String(rohZuId(this._befehlsliste(), value)).toLowerCase();
+          const state = this._richtung(CONTROL_TO_STATE[wort], settings);
           if (state) {
             await this.setCapabilityValue('windowcoverings_state', state).catch(() => {});
+          } else {
+            this._unbekannterBefehl(value);
           }
           break;
         }

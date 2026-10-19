@@ -165,6 +165,15 @@ class CurtainMotorDriver extends Homey.Driver {
           const cloudDps = await detectViaCloud(this.homey, deviceId, CLOUD_CODE_MAP, (m) => this.log(m), {}, guessedDefaults(detectedDps, collectedDps), {},
             { nachbearbeitung: (spec, ergebnis) => this._ordneIstPosition(ergebnis) });
           if (Object.keys(cloudDps).length > 0) Object.assign(detectedDps, cloudDps);
+
+          // Ein Steuer-DP, der eine Ziffer meldet, will Ziffern - siehe control_values.
+          // Die uebliche Belegung solcher Rolladenschalter (localtuya nennt sie "1_2_3"),
+          // und die, zu der die Cloud passt: sie uebersetzt ein gemeldetes "2" als close.
+          const steuerwert = collectedDps[detectedDps.dp_control];
+          if (typeof steuerwert === 'string' && /^[123]$/.test(steuerwert)) {
+            detectedDps.control_values = 'open=1,close=2,stop=3';
+            this.log(`Control DP reports "${steuerwert}" - command values set to open=1,close=2,stop=3`);
+          }
         }
       } catch (err) {
         connected = false;

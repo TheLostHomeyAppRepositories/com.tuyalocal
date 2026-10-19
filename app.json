@@ -24900,6 +24900,19 @@
               }
             },
             {
+              "id": "control_values",
+              "type": "text",
+              "label": {
+                "en": "Command values",
+                "de": "Befehlswerte"
+              },
+              "value": "open,stop,close",
+              "hint": {
+                "en": "What the Control DP sends for open, stop and close. Most motors take the words as they are. A motor that reports a number on its Control DP wants numbers: write them as name=value, usually open=1,close=2,stop=3. If open and close then come out the wrong way round, use Invert open/close direction.",
+                "de": "Was der Steuer-DP für auf, stop und zu sendet. Die meisten Motoren nehmen die Wörter, wie sie sind. Ein Motor, der auf seinem Steuer-DP eine Zahl meldet, will Zahlen: als Name=Wert schreiben, meist open=1,close=2,stop=3. Kommen auf und zu dann vertauscht heraus, hilft „Öffnen/Schließen-Richtung umkehren“."
+              }
+            },
+            {
               "id": "dp_position_best",
               "type": "number",
               "label": {

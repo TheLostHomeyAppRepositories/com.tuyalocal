@@ -839,6 +839,7 @@ Same settings as Dehumidifier (IP, Device ID, Local Key, Protocol Version, Polli
 |---|---|---|
 | `invert_position` | Enable if `0 %` = open and `100 %` = closed on your device | `false` |
 | `invert_control` | Enable if Open physically closes the curtain. Swaps the commands and reads the motor's replies the same way round, so the tile shows the direction you pressed | `false` |
+| `control_values` | What the control DP sends for open, stop and close, in the `name=value` form when the motor wants numbers — usually `open=1,close=2,stop=3`. The motor's reports are read back the same way. Pairing sets that list when the control DP reports a digit 1–3 | `open,stop,close` |
 
 > **Position convention:** The driver maps `percent_control` where `0` = fully closed and `100` = fully open to Homey's `windowcoverings_set` (0.0–1.0). Enable `invert_position` if your device uses the opposite convention.
 
@@ -2975,6 +2976,7 @@ Fetch device credentials and DP specifications from the Tuya IoT Platform (avail
 | Pet feeder sends 3–4 "disconnected" notifications per night | Tuya firmware briefly drops TCP connection at timed intervals | Increase **Offline Grace Period** in device settings (default 60 s already handles most cases; try 120 s if it still fires) |
 | Presence sensor (PIR) switches its motion detection back on by itself | The sensor's own `auto` mode — a flow that switches detection off every few minutes races its timer | Set **Mode DP** (typically 51) and switch the mode to `manual`, on the tile or with the **Set mode** flow card |
 | Generic device shows raw key as label | Missing locale key | Set labels via the `label` field in the dp_config mapping |
+| Curtain motor does not react to open, stop or close; the log says *Control DP reports "2"* | The motor wants numbers, not the words `open` / `stop` / `close` — seen on the Nedis WIFIWC10WT | Set **Command values** to `open=1,close=2,stop=3`. If open and close come out reversed, enable **Invert open/close direction** |
 | Curtain position slider is inverted | Device uses 0 = open, 100 = closed | Enable `invert_position` in device settings |
 | Curtain tile shows "moving" but motor has stopped | `work_state` DP not resetting on this device | Set `dp_work_state = 0` to disable it |
 | Curtain motor limit positions are wrong | Motor limits not calibrated | Run limit calibration from the Tuya / Smart Life app (DP 16 `border`) before using Homey |
