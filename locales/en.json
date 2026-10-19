@@ -164,6 +164,9 @@
       },
       "smart_plug": {
         "switch": "On / Off",
+        "switch2": "Outlet 2  (0 = none)",
+        "switch3": "Outlet 3  (0 = none)",
+        "switch4": "Outlet 4  (0 = none)",
         "power": "Power (W)",
         "voltage": "Voltage (V)",
         "current": "Current (A)",

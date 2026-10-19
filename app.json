@@ -3667,7 +3667,7 @@
           {
             "name": "device",
             "type": "device",
-            "filter": "driver_id=wall_switch"
+            "filter": "driver_id=wall_switch|smart_plug"
           },
           {
             "name": "gang",
@@ -7204,7 +7204,7 @@
           {
             "name": "device",
             "type": "device",
-            "filter": "driver_id=wall_switch"
+            "filter": "driver_id=wall_switch|smart_plug"
           },
           {
             "name": "gang",
@@ -10190,7 +10190,7 @@
           {
             "name": "device",
             "type": "device",
-            "filter": "driver_id=wall_switch"
+            "filter": "driver_id=wall_switch|smart_plug"
           },
           {
             "name": "gang",
@@ -10270,7 +10270,7 @@
           {
             "name": "device",
             "type": "device",
-            "filter": "driver_id=wall_switch"
+            "filter": "driver_id=wall_switch|smart_plug"
           },
           {
             "name": "gang",
@@ -18938,6 +18938,90 @@
               "hint": {
                 "en": "DP for power switch (default: 1)",
                 "de": "DP für Ein/Aus (Standard: 1)"
+              }
+            },
+            {
+              "id": "dp_switch_2",
+              "type": "number",
+              "label": {
+                "en": "Outlet 2 DP",
+                "de": "Steckdose 2 DP"
+              },
+              "value": 0,
+              "min": 0,
+              "max": 255,
+              "hint": {
+                "en": "Second outlet of a power strip — typically DP 2 (switch_2). It gets its own on/off tile and works with the switch gang flow cards; the power readings cover the whole strip. 0 = none.",
+                "de": "Zweite Steckdose einer Steckdosenleiste — typischerweise DP 2 (switch_2). Sie bekommt eine eigene Ein/Aus-Kachel und gilt für die Flow-Karten der Schalterkanäle; die Messwerte gelten für die ganze Leiste. 0 = keine."
+              }
+            },
+            {
+              "id": "dp_switch_3",
+              "type": "number",
+              "label": {
+                "en": "Outlet 3 DP",
+                "de": "Steckdose 3 DP"
+              },
+              "value": 0,
+              "min": 0,
+              "max": 255,
+              "hint": {
+                "en": "Third outlet of a power strip — typically DP 3 (switch_3). It gets its own on/off tile and works with the switch gang flow cards; the power readings cover the whole strip. 0 = none.",
+                "de": "Dritte Steckdose einer Steckdosenleiste — typischerweise DP 3 (switch_3). Sie bekommt eine eigene Ein/Aus-Kachel und gilt für die Flow-Karten der Schalterkanäle; die Messwerte gelten für die ganze Leiste. 0 = keine."
+              }
+            },
+            {
+              "id": "dp_switch_4",
+              "type": "number",
+              "label": {
+                "en": "Outlet 4 DP",
+                "de": "Steckdose 4 DP"
+              },
+              "value": 0,
+              "min": 0,
+              "max": 255,
+              "hint": {
+                "en": "Fourth outlet of a power strip — typically DP 4 (switch_4). It gets its own on/off tile and works with the switch gang flow cards; the power readings cover the whole strip. 0 = none.",
+                "de": "Vierte Steckdose einer Steckdosenleiste — typischerweise DP 4 (switch_4). Sie bekommt eine eigene Ein/Aus-Kachel und gilt für die Flow-Karten der Schalterkanäle; die Messwerte gelten für die ganze Leiste. 0 = keine."
+              }
+            },
+            {
+              "id": "name_switch_2",
+              "type": "text",
+              "label": {
+                "en": "Outlet 2 name",
+                "de": "Name Steckdose 2"
+              },
+              "value": "",
+              "hint": {
+                "en": "Name of the outlet 2 tile. Empty = \"Outlet 2\".",
+                "de": "Name der Kachel für Steckdose 2. Leer = „Steckdose 2“."
+              }
+            },
+            {
+              "id": "name_switch_3",
+              "type": "text",
+              "label": {
+                "en": "Outlet 3 name",
+                "de": "Name Steckdose 3"
+              },
+              "value": "",
+              "hint": {
+                "en": "Name of the outlet 3 tile. Empty = \"Outlet 3\".",
+                "de": "Name der Kachel für Steckdose 3. Leer = „Steckdose 3“."
+              }
+            },
+            {
+              "id": "name_switch_4",
+              "type": "text",
+              "label": {
+                "en": "Outlet 4 name",
+                "de": "Name Steckdose 4"
+              },
+              "value": "",
+              "hint": {
+                "en": "Name of the outlet 4 tile. Empty = \"Outlet 4\".",
+                "de": "Name der Kachel für Steckdose 4. Leer = „Steckdose 4“."
               }
             },
             {

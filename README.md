@@ -240,6 +240,7 @@ Same settings as Dehumidifier (IP, Device ID, Local Key, Protocol Version, Polli
 | Setting | Icon | Capability | Type | Default DP | Optional |
 |---|:---:|---|---|---|---|
 | `dp_switch` |  | `onoff` | boolean | 1 | — |
+| `dp_switch_2` … `dp_switch_4` |  | `onoff.2` … `onoff.4` | boolean | 0 | ✓ `0` = none — the further outlets of a power strip, see below |
 | `dp_power` |  | `measure_power` | number | 19 | — |
 | `dp_voltage` |  | `measure_voltage` | number | 20 | — |
 | `dp_current` |  | `measure_current` | number | 18 | — |
@@ -249,13 +250,23 @@ Same settings as Dehumidifier (IP, Device ID, Local Key, Protocol Version, Polli
 | `dp_power_factor` | <img src="assets/capabilities/power_factor.svg" height="24"> | `power_factor` | number | 0 | ✓ `0` = disabled |
 | `dp_countdown` | <img src="assets/capabilities/countdown_timer.svg" height="24"> | *(flow only)* | number | 0 | ✓ `0` = disabled |
 
+#### Power strips
+
+A power strip is a plug with more than one outlet. The first is `dp_switch` and the main on/off; the others go on
+`dp_switch_2` … `dp_switch_4`, each with a tile of its own that `name_switch_2` … `_4` can name. The power readings
+belong to the whole strip. Pairing finds the outlets by their code names `switch_2` … `switch_4`; on a strip that is
+already paired, enter the numbers by hand — usually 2, 3 and 4. The outlets work with the Wall Switch's channel cards
+(**A switch gang changed**, **Set switch gang on or off**, **Toggle switch gang**, **Switch gang is on**); Homey's own
+on/off cards reach the first outlet only.
+
 #### Energy Metering
 
 Most Tuya plugs send the energy counter (DP 17, `add_ele`) as a **resetting delta** — the Tuya cloud accumulates the deltas into a lifetime total, but locally the value appears frozen.
 
 When `dp_energy = 0` (default), the app computes kWh itself by integrating live power readings using **trapezoidal averaging** — the mean of the previous and current power reading multiplied by elapsed time. The result is monotonically increasing and persisted across app restarts. It is added up every polling cycle, and every 30 s when Polling Interval is 0 — the device is then not asked for anything, but the count goes on.
 
-Set `dp_energy = 17` only if your device provides a reliable cumulative local energy counter.
+Set `dp_energy = 17` only if your device provides a reliable cumulative local energy counter. For the same reason,
+pairing does not take `add_ele` from the cloud specification for `dp_energy`.
 
 The energy accumulator can be reset via the **Reset energy meter** flow action.
 
@@ -2504,6 +2515,9 @@ fan: sub-capabilities (`onoff.fan`, `dim.fan`) and app-defined capabilities (`fa
 | Force wall switch reconnect | Drops and re-establishes the TCP connection |
 | Refresh wall switch values | Triggers an immediate GET request |
 
+The channel cards work for the outlets of a power strip on the **Smart Plug** driver as well — see
+[Power strips](#power-strips).
+
 ---
 
 ### Doorbell
@@ -2967,7 +2981,7 @@ Fetch device credentials and DP specifications from the Tuya IoT Platform (avail
 | Thermostat temperature is 10× too high | Device sends ×10 values (e.g. BHT-002, Moes) | Set `temp_divisor = 10` in device settings |
 | Thermostat mode picker shows wrong options | `mode_values` mismatch | Check the DP Debug tab for the actual strings, update `mode_values` in settings |
 | Thermostat heating indicator (`alarm_heat`) never activates | `dp_hvac_action` not set | Set **DP HVAC Action** in device settings to the DP that reports `heating`/`1`/`true` when the boiler fires |
-| A multi-gang switch shows only one channel | It was paired on the **Smart Plug** driver, which has a single `dp_switch`. Its cloud specification gives it away: `switch_1` … `switch_4` and no power, voltage or current at all | Remove it and pair it on the **Wall Switch** driver, which has `dp_switch_1` … `dp_switch_4`. A device cannot change driver. Countdowns are not auto-detected — enter `dp_countdown_1` … `_4` by hand if you want per-channel timers |
+| A multi-gang switch or power strip shows only one channel | It was paired on the **Smart Plug** driver before it knew more than one outlet. Its cloud specification gives it away: `switch_1` … `switch_4` | Enter the further outlets in its settings under **Outlet 2/3/4 DP** — usually 2, 3, 4; the power readings stay. Without power readings, the **Wall Switch** driver also fits and adds "all channels at once" and per-channel countdowns, but a device cannot change driver: that means removing and pairing it again |
 | Wall switch trigger doesn't fire for switch 2+ | Using Homey's built-in "Turned on/off" trigger | Use the Wall Switch-specific **"A switch gang changed"** trigger card instead |
 | Wall switch tile names don't update | Homey caches capability titles | Restart the Tuya Local app after changing switch names |
 | Kettle mode picker empty | `mode_values` doesn't match device strings | Check DP Debug for the exact mode strings (some use `mzj_black`, `boiling_quick`, etc.) |

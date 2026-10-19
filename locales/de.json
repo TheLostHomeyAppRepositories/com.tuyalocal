@@ -164,6 +164,9 @@
       },
       "smart_plug": {
         "switch": "Ein / Aus",
+        "switch2": "Steckdose 2  (0 = keine)",
+        "switch3": "Steckdose 3  (0 = keine)",
+        "switch4": "Steckdose 4  (0 = keine)",
         "power": "Leistung (W)",
         "voltage": "Spannung (V)",
         "current": "Strom (A)",

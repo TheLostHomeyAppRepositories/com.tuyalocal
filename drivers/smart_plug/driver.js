@@ -14,10 +14,18 @@ const { fehlertext } = require('../../lib/utils.js');
 // — no reliably standardised code name across manufacturers.
 const CLOUD_CODE_MAP = {
   dp_switch:       ['switch_1', 'switch'],
+  // Die weiteren Steckdosen einer Steckdosenleiste - siehe STECKDOSEN in device.js.
+  dp_switch_2:     ['switch_2'],
+  dp_switch_3:     ['switch_3'],
+  dp_switch_4:     ['switch_4'],
   dp_power:        ['cur_power'],
   dp_current:      ['cur_current'],
   dp_voltage:      ['cur_voltage'],
-  dp_energy:       ['add_ele', 'energy'],
+  // Nicht add_ele: das ist bei den meisten Steckdosen lokal ein Zuwachs seit der letzten
+  // Meldung, kein Zaehlerstand. Auf meter_power gelegt, stand der Zaehler einer gemeldeten
+  // Leiste bei 0,004 kWh still. Die eigene Erkennung laesst DP 17 deshalb aus - und die
+  // Cloud setzte ihn wieder hinein. Mit 0 rechnet die App die kWh aus der Leistung.
+  dp_energy:       ['energy'],
   dp_relay_status: ['relay_status'],
   dp_countdown:    ['countdown_1', 'countdown'],
   dp_fault:        ['fault'],

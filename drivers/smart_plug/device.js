@@ -18,6 +18,18 @@ const DP_PROFILE = [
 // Was ein Refresh abfragt: nur die Messwerte. Siehe refreshDps.
 const MESS_DPS = ['dp_current', 'dp_power', 'dp_voltage', 'dp_energy', 'dp_power_factor'];
 
+// Die weiteren Steckdosen einer Steckdosenleiste. Die erste ist der Schalter oben
+// (dp_switch, `onoff`); die Messung gilt fuer die ganze Leiste.
+//
+// Gemeldet mit einer LSC-Leiste: drei Steckdosen auf DP 1-3 und eine Messung fuer alle
+// drei. Als Steckdose angelegt schaltete sie nur die erste, als Wandschalter alle drei,
+// aber ohne Messung - keiner der beiden Treiber konnte beides.
+const STECKDOSEN = [
+  { nummer: 2, settingKey: 'dp_switch_2', nameSetting: 'name_switch_2', capability: 'onoff.2' },
+  { nummer: 3, settingKey: 'dp_switch_3', nameSetting: 'name_switch_3', capability: 'onoff.3' },
+  { nummer: 4, settingKey: 'dp_switch_4', nameSetting: 'name_switch_4', capability: 'onoff.4' },
+];
+
 class SmartPlugDevice extends BaseTuyaDevice {
   async onInit() {
     this.log('Device initialized:', this.getName());
@@ -62,6 +74,16 @@ class SmartPlugDevice extends BaseTuyaDevice {
       { setting: 'dp_power_factor', capability: 'power_factor'  },
     ]);
 
+    // Wie beim Wandschalter: ausgeloest wird nur ein echter Wechsel. Der Stand nach einem
+    // Neustart ist der, den die Kacheln zuletzt zeigten - sonst hiesse die erste Meldung
+    // nach jedem Neuverbinden "Steckdose geaendert".
+    this._lastGangState = {};
+    for (const [nummer, cap] of [[1, 'onoff'], ...STECKDOSEN.map((s) => [s.nummer, s.capability])]) {
+      const v = this.hasCapability(cap) ? this.getCapabilityValue(cap) : null;
+      if (v !== null && v !== undefined) this._lastGangState[nummer] = v;
+    }
+    await this._syncSteckdosen();
+
     // â”€â”€ Flow trigger cards â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     this._triggerDeviceConnected    = this.homey.flow.getDeviceTriggerCard('plug_device_connected');
     this._triggerDeviceDisconnected = this.homey.flow.getDeviceTriggerCard('plug_device_disconnected');
@@ -69,6 +91,8 @@ class SmartPlugDevice extends BaseTuyaDevice {
     this._triggerPowerAbove         = this.homey.flow.getDeviceTriggerCard('plug_power_above');
     this._triggerPowerBelow         = this.homey.flow.getDeviceTriggerCard('plug_power_below');
     this._triggerFaultOn            = this.homey.flow.getDeviceTriggerCard('plug_fault_alarm_on');
+    // Die Kanal-Karten des Wandschalters gelten auch hier - siehe _capForGang.
+    this._triggerGangChanged        = this.homey.flow.getDeviceTriggerCard('switch_gang_changed');
 
     // â”€â”€ Capability listeners (auto-registered from DP_PROFILE) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     for (const entry of DP_PROFILE) {
@@ -157,6 +181,69 @@ class SmartPlugDevice extends BaseTuyaDevice {
       this._prevTickPowerWatts = this._lastPowerWatts;
       this._lastPowerTime      = now;
     }
+  }
+
+  // -- Steckdosenleiste --------------------------------------------------------
+
+  /**
+   * Die Faehigkeit einer Steckdose, nach ihrer Nummer. Die Kanal-Karten des
+   * Wandschalters fragen danach (switch_set_gang, switch_toggle_gang, switch_gang_is_on):
+   * dieselben Karten fuer eine Leiste wie fuer einen Schalter.
+   *
+   * @param {number|string} nummer 1 ... 4
+   */
+  _capForGang(nummer) {
+    const n = parseInt(nummer, 10);
+    return n === 1 ? 'onoff' : `onoff.${n}`;
+  }
+
+  /**
+   * Kacheln, Namen und Zuhoerer der Steckdosen 2-4, nach ihren Einstellungen.
+   *
+   * Ein Zuhoerer je Faehigkeit und nur einmal: Homey behaelt ihn ueber ein Entfernen und
+   * erneutes Anlegen der Faehigkeit hinweg, und ein zweiter schickte jeden Befehl doppelt.
+   * Die DP-Nummer liest er beim Schalten, nicht beim Anmelden - eine geaenderte Nummer
+   * gilt so ab dem Speichern.
+   */
+  async _syncSteckdosen() {
+    this._steckdosenZuhoerer = this._steckdosenZuhoerer || new Set();
+    for (const s of STECKDOSEN) {
+      const dp = Number(this.getSetting(s.settingKey)) || 0;
+      if (dp <= 0) {
+        if (this.hasCapability(s.capability)) {
+          await this.removeCapability(s.capability).catch(() => {});
+          // Sonst bekaeme die Kachel beim naechsten Anlegen keinen Namen: der Speicher
+          // hielte ihn fuer schon gesetzt.
+          delete this._capOptCache[s.capability];
+        }
+        delete this._lastGangState[s.nummer];
+        continue;
+      }
+      if (!this.hasCapability(s.capability)) await this.addCapability(s.capability).catch(() => {});
+      if (!this.hasCapability(s.capability)) continue;
+      const name = String(this.getSetting(s.nameSetting) || '').trim();
+      await this._setCapabilityOptionsIfChanged(s.capability, {
+        title: name ? { en: name, de: name } : { en: `Outlet ${s.nummer}`, de: `Steckdose ${s.nummer}` },
+      }).catch(() => {});
+      if (!this._steckdosenZuhoerer.has(s.capability)) {
+        this._steckdosenZuhoerer.add(s.capability);
+        this.registerCapabilityListener(s.capability, async (value) => {
+          const ziel = Number(this.getSetting(s.settingKey)) || 0;
+          if (!(ziel > 0)) throw new Error(`Outlet ${s.nummer} is not configured on this device`);
+          await this._set(ziel, Boolean(value));
+        });
+      }
+    }
+  }
+
+  /** Ein gemeldeter Stand einer Steckdose: die Karte "Ein Schalterkanal hat sich geaendert". */
+  _steckdoseGewechselt(nummer, an) {
+    const vorher = this._lastGangState[nummer];
+    this._lastGangState[nummer] = an;
+    // Der erste Stand ueberhaupt ist ein Stand, kein Wechsel.
+    if (vorher === undefined || vorher === an) return;
+    this._triggerGangChanged?.trigger(this, { gang: String(nummer), state: an }, { gang: String(nummer) })
+      .catch(() => {});
   }
 
   async _onDeleted() {
@@ -250,6 +337,17 @@ class SmartPlugDevice extends BaseTuyaDevice {
         continue;
       }
 
+      // Eine weitere Steckdose der Leiste.
+      const steckdose = STECKDOSEN.find((s) => settings[s.settingKey] > 0 && dp === settings[s.settingKey]);
+      if (steckdose) {
+        if (this.hasCapability(steckdose.capability)) {
+          const an = Boolean(value);
+          await this.setCapabilityValue(steckdose.capability, an).catch(() => {});
+          this._steckdoseGewechselt(steckdose.nummer, an);
+        }
+        continue;
+      }
+
       if (!entry) {
         this.log(`Unknown DP ${dp}:`, value);
         continue;
@@ -315,6 +413,7 @@ class SmartPlugDevice extends BaseTuyaDevice {
         }
       } else {
         await this.setCapabilityValue(entry.capability, converted).catch(() => {});
+        if (entry.settingKey === 'dp_switch') this._steckdoseGewechselt(1, converted);
       }
     }
 
@@ -384,6 +483,10 @@ class SmartPlugDevice extends BaseTuyaDevice {
         this._detectedPowerScale = 0.1;
       }
       this.refreshDps().catch(() => {});
+    }
+
+    if (changedKeys.some((k) => STECKDOSEN.some((s) => s.settingKey === k || s.nameSetting === k))) {
+      await this._syncSteckdosen();
     }
 
     if (changedKeys.some((k) => ['dp_fault', 'dp_power_factor'].includes(k))) {
